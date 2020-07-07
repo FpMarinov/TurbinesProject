@@ -15,7 +15,7 @@ from torch.optim import Adam
 from sklearn.manifold import TSNE
 from trainer import Trainer
 from DataReader import get_lists
-import TurbineDataset
+
 
 # path = "./vae_net.pth"
 
