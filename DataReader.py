@@ -1,10 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-
 from sklearn.model_selection import train_test_split
-import torch
-from torch.utils.data import DataLoader, TensorDataset
 
 
 def get_lists():
@@ -33,7 +30,6 @@ def get_lists():
 
 
 def plot_list(list, name, start_index=0, end_index=None, data_fraction=None):
-
     if end_index is None:
         end_index = len(list)
 
@@ -49,7 +45,6 @@ def plot_list(list, name, start_index=0, end_index=None, data_fraction=None):
 
 
 if __name__ == "__main__":
-
     velocity_list, thrust_list, torque_list = get_lists()
 
     plot_list(velocity_list, 'Velocity_x')
@@ -60,8 +55,3 @@ if __name__ == "__main__":
 
     data_train, data_test = train_test_split(velocity_list, test_size=0.2, train_size=0.8, shuffle=False)
     print(data_test)
-
-
-
-
-

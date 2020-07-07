@@ -1,24 +1,29 @@
 from sklearn.model_selection import train_test_split
 import torch
-import sys
-import os
-import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-import pandas as pd
-import plotly.express as px
-import plotly.io as pio
 from torch.utils.data import DataLoader, TensorDataset
-from torchvision.datasets import MNIST
-from torchvision import transforms
 from torch.optim import Adam
-from sklearn.manifold import TSNE
 from trainer import Trainer
 from DataReader import get_lists
 import matplotlib.pyplot as plt
 
 
-# path = "./vae_net.pth"
+mode_default = "train"
+epochs_default = 1
+visualise_default = True
+
+convolution_channel_size_1 = 64
+convolution_channel_size_2 = 32
+fully_connected_unit_size = 400
+z_dimension_default = 20
+convolution_kernel = 3
+pooling_kernel = 3
+
+weights_path_default = "./vae_net.pth"
+seed_default = 1
+lr_default = 1e-3
+print_freq_default = 10
 
 
 class Encoder(nn.Module):
@@ -27,23 +32,23 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
 
         # 1 in channel, 64 out channels, 3 kernel, stride=padding=1
-        self.conv1 = nn.Conv1d(1, 64, 3, 1, 1)
-        self.bn_conv1 = nn.BatchNorm1d(64)
+        self.conv1 = nn.Conv1d(1, convolution_channel_size_1, convolution_kernel, 1, 1)
+        self.bn_conv1 = nn.BatchNorm1d(convolution_channel_size_1)
 
         # 64 in channel, 32 out channels, 3 kernel, stride=padding=1
-        self.conv2 = nn.Conv1d(64, 32, 3, 1, 1)
-        self.bn_conv2 = nn.BatchNorm1d(32)
+        self.conv2 = nn.Conv1d(convolution_channel_size_1, convolution_channel_size_2, convolution_kernel, 1, 1)
+        self.bn_conv2 = nn.BatchNorm1d(convolution_channel_size_2)
 
         # kernel = 3, stride = 1, pooling
-        self.pool = nn.MaxPool1d(3, 1)
+        self.pool = nn.MaxPool1d(pooling_kernel, 1)
 
         # fc1_size in, 400 out
-        self.fc1 = nn.Linear(fc1_size, 400)
-        self.bn_fc1 = nn.BatchNorm1d(400)
+        self.fc1 = nn.Linear(fc1_size, fully_connected_unit_size)
+        self.bn_fc1 = nn.BatchNorm1d(fully_connected_unit_size)
 
         # 400 in, z_dim out
-        self.z_mu = nn.Linear(400, z_dim)
-        self.z_sigma = nn.Linear(400, z_dim)
+        self.z_mu = nn.Linear(fully_connected_unit_size, z_dim)
+        self.z_sigma = nn.Linear(fully_connected_unit_size, z_dim)
 
     def forward(self, x):
 
@@ -78,19 +83,19 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         # z_dim in, 400 out
-        self.fc1 = nn.Linear(z_dim, 400)
-        self.bn_fc1 = nn.BatchNorm1d(400)
+        self.fc1 = nn.Linear(z_dim, fully_connected_unit_size)
+        self.bn_fc1 = nn.BatchNorm1d(fully_connected_unit_size)
 
         # 400 in, output_size out
-        self.fc2 = nn.Linear(400, output_size)
+        self.fc2 = nn.Linear(fully_connected_unit_size, output_size)
         self.bn_fc2 = nn.BatchNorm1d(output_size)
 
         # 32 in channels, 64 out channels, 3 kernel, stride=padding=1
-        self.conv1 = nn.Conv1d(32, 64, 3, 1, 1)
-        self.bn_conv1 = nn.BatchNorm1d(64)
+        self.conv1 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_1, convolution_kernel, 1, 1)
+        self.bn_conv1 = nn.BatchNorm1d(convolution_channel_size_1)
 
         # 64 in channels, 1 out channel, 3 kernel, stride=padding=1
-        self.conv2 = nn.Conv1d(64, 1, 3, 1, 1)
+        self.conv2 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
         x = self.fc1(z_input)
@@ -101,7 +106,7 @@ class Decoder(nn.Module):
         x = F.relu(x)
         # x = self.bn_fc2(x)
 
-        x = x.view(z_input.size()[0], 32, 1)
+        x = x.view(z_input.size()[0], convolution_channel_size_2, 1)
         x = F.interpolate(x, 3)
 
         x = self.conv1(x)
@@ -121,8 +126,8 @@ class VAE(nn.Module):
 
     def __init__(self, z_dim):
         super(VAE, self).__init__()
-        self.encoder = Encoder(z_dim, 32)
-        self.decoder = Decoder(z_dim, 32)
+        self.encoder = Encoder(z_dim, convolution_channel_size_2)
+        self.decoder = Decoder(z_dim, convolution_channel_size_2)
 
     def forward(self, x):
         z_mean, z_logvar = self.encoder(x)
@@ -148,15 +153,15 @@ def loss_fn(output, mean, logvar, target):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="MNIST VAE")
-    parser.add_argument("--mode", type=str, default="train")
-    parser.add_argument("--seed", type=int, default=1)
-    parser.add_argument("--epochs", type=int, default=10)
-    parser.add_argument("--z_dim", type=int, default=20)
-    parser.add_argument("--lr", type=float, default=1e-3)
-    parser.add_argument("--print_freq", type=int, default=10)
-    parser.add_argument("--weights", type=str, default="./vae_net.pth")
-    parser.add_argument("--visualise", type=bool, default=True)
+    parser = argparse.ArgumentParser(description="Turbines VAE")
+    parser.add_argument("--mode", type=str, default=mode_default)
+    parser.add_argument("--seed", type=int, default=seed_default)
+    parser.add_argument("--epochs", type=int, default=epochs_default)
+    parser.add_argument("--z_dim", type=int, default=z_dimension_default)
+    parser.add_argument("--lr", type=float, default=lr_default)
+    parser.add_argument("--print_freq", type=int, default=print_freq_default)
+    parser.add_argument("--weights", type=str, default=weights_path_default)
+    parser.add_argument("--visualise", type=bool, default=visualise_default)
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
