@@ -15,6 +15,7 @@ from torch.optim import Adam
 from sklearn.manifold import TSNE
 from trainer import Trainer
 from DataReader import get_lists
+import matplotlib.pyplot as plt
 
 
 # path = "./vae_net.pth"
@@ -45,6 +46,7 @@ class Encoder(nn.Module):
         self.z_sigma = nn.Linear(400, z_dim)
 
     def forward(self, x):
+
         x = self.conv1(x)
         x = F.relu(x)
         x = self.bn_conv1(x)
@@ -201,26 +203,27 @@ if __name__ == "__main__":
         vae.load_state_dict(torch.load(args.weights))
         vae.eval()
 
-    # if args.visualise:
-    #
-    #     latent_mnist = []
-    #     target = []
-    #     for dataset, targets in val_loader:
-    #         z_means, z_logvar = vae.encoder(dataset)
-    #         latent_mnist.extend(z_means.detach().numpy())
-    #         target.extend(targets.numpy())
-    #
-    #     # take first 1k
-    #     latent = np.array(latent_mnist)
-    #     target = np.array(target)
-    #     tsne = TSNE(n_components=2, init="pca", random_state=0)
-    #
-    #     X = tsne.fit_transform(latent)
-    #
-    #     dataset = np.vstack((X.T, target)).T
-    #     df = pd.DataFrame(data=dataset, columns=["z1", "z2", "label"])
-    #     df["label"] = df["label"].astype(str)
-    #
-    #     fig = px.scatter(df, x="z1", y="z2", color="label")
-    #
-    #     pio.write_html(fig, file="vis.html", auto_open=True)
+    if args.visualise:
+
+        reconstruction = []
+        target = []
+        for dataset_targets in val_loader:
+
+            dataset_targets = dataset_targets[0]
+            dataset_inputs = dataset_targets.unsqueeze(0).unsqueeze(0)
+
+            outputs = vae(dataset_inputs)
+
+            numpy_outputs = outputs[0].detach().to(torch.device('cpu'))
+            numpy_outputs = numpy_outputs.numpy()[0][0]
+
+            dataset_targets = dataset_targets.to(torch.device('cpu'))
+            dataset_targets = dataset_targets.numpy()
+
+            target.extend(dataset_targets)
+            reconstruction.extend(numpy_outputs)
+
+        plt.scatter(target, reconstruction)
+        plt.ylabel("reconstruction")
+        plt.xlabel("input")
+        plt.show()

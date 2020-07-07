@@ -35,6 +35,7 @@ class Trainer():
                 # targets = inputs_targets.to(self.device)
 
                 outputs = self.model(inputs_targets)
+
                 loss = self.loss_criterion(outputs[0], outputs[1], outputs[2], inputs_targets)
                 loss.backward()
                 self.optimizer.step()
