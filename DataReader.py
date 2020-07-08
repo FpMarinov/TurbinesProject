@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
-from sklearn.model_selection import train_test_split
 
 
 def get_lists():
