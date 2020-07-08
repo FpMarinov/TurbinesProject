@@ -52,6 +52,3 @@ if __name__ == "__main__":
     plot_list(torque_list, 'Torque')
 
     plt.show()
-
-    data_train, data_test = train_test_split(velocity_list, test_size=0.2, train_size=0.8, shuffle=False)
-    print(data_test)
