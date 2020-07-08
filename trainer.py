@@ -27,7 +27,6 @@ class Trainer():
             for inputs_targets in self.logger.log(self.train_loader, self.print_freq, "Epoch: [{}]".format(self.epoch)):
 
                 inputs_targets = inputs_targets[0]
-                inputs_targets = inputs_targets.unsqueeze(0).unsqueeze(0)
 
                 self.optimizer.zero_grad()
 
@@ -52,7 +51,6 @@ class Trainer():
             for inputs_targets in self.logger.log(self.val_loader, self.print_freq, "Test:"):
 
                 inputs_targets = inputs_targets[0]
-                inputs_targets = inputs_targets.unsqueeze(0).unsqueeze(0)
 
                 model_time = time.time()
                 outputs = self.model(inputs_targets)
