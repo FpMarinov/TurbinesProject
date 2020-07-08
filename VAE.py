@@ -8,13 +8,15 @@ from torch.optim import Adam
 from trainer import Trainer
 from DataReader import get_lists
 import matplotlib.pyplot as plt
+import numpy as np
 
 
-data_type = "velocity"
+data_type = "torque"
 mode = "test"
 epochs = 11
 visualise = True
 drop_outliers = True
+show_y_equals_x = True
 
 data_slice_size = 5
 convolution_channel_size_1 = 64
@@ -227,6 +229,8 @@ if __name__ == "__main__":
 
     # visualise reconstruction if visualisation is on
     if visualise:
+
+        # get lists of original data and reconstructions
         reconstructions = []
         originals = []
         for inputs_targets in val_loader:
@@ -243,14 +247,24 @@ if __name__ == "__main__":
             inputs_targets = inputs_targets.numpy()
             originals.extend(inputs_targets)
 
+        # make scatter plot of originals and reconstructions
         plt.scatter(originals, reconstructions)
+
+        # make plot of y = x if turned on
+        min_data = min(data)
+        max_data = max(data)
+        if show_y_equals_x:
+            straight_line_data = np.linspace(min(data), max(data))
+            plt.plot(straight_line_data, straight_line_data, color="black")
+
+        # set axis labels and title
         plt.ylabel("reconstruction")
         plt.xlabel("original")
         plt.title(data_type)
 
         # set up drop of outliers in visualisation if turned on
         if drop_outliers:
-            y_upper_limit = max(data)
+            y_upper_limit = max_data
         else:
             y_upper_limit = None
         plt.ylim(top=y_upper_limit, bottom=0.0)
