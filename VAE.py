@@ -1,4 +1,5 @@
 from sklearn.model_selection import train_test_split
+import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,12 +10,13 @@ from DataReader import get_lists
 import matplotlib.pyplot as plt
 
 
-data_slice_size = 5
-
-mode = "train"
+data_type = "velocity"
+mode = "test"
 epochs = 11
 visualise = True
+drop_outliers = True
 
+data_slice_size = 5
 convolution_channel_size_1 = 64
 convolution_channel_size_2 = 32
 fully_connected_unit_size = 400
@@ -22,7 +24,8 @@ latent_dimensions = 20
 convolution_kernel = 3
 pooling_kernel = 3
 
-weights_path = "./vae_net_vel_new.pth"
+weights_path = "./vae_net_%s.pth" % data_type
+
 seed = 1
 lr = 1e-3
 print_freq = 10
@@ -158,7 +161,14 @@ def loss_fn(output, mean, logvar, target):
 if __name__ == "__main__":
     # get data
     velocity_list, thrust_list, torque_list = get_lists()
-    data = velocity_list
+    if data_type == "velocity":
+        data = velocity_list
+    elif data_type == "thrust":
+        data = thrust_list
+    elif data_type == "torque":
+        data = torque_list
+    else:
+        sys.exit("Incorrect data_type.")
 
     # set seed
     torch.manual_seed(seed)
@@ -217,24 +227,32 @@ if __name__ == "__main__":
 
     # visualise reconstruction if visualisation is on
     if visualise:
-        reconstruction = []
-        target = []
+        reconstructions = []
+        originals = []
         for inputs_targets in val_loader:
 
             inputs_targets = inputs_targets[0]
 
             outputs = vae(inputs_targets)
 
-            numpy_outputs = outputs[0].detach().to(torch.device('cpu'))
-            numpy_outputs = numpy_outputs.numpy()[0][0]
+            outputs = outputs[0].detach().view(-1).to(torch.device('cpu'))
+            outputs = outputs.numpy()
+            reconstructions.extend(outputs)
 
-            inputs_targets = inputs_targets.to(torch.device('cpu'))
+            inputs_targets = inputs_targets.view(-1).to(torch.device('cpu'))
             inputs_targets = inputs_targets.numpy()
+            originals.extend(inputs_targets)
 
-            target.extend(inputs_targets)
-            reconstruction.extend(numpy_outputs)
-
-        plt.scatter(target, reconstruction)
+        plt.scatter(originals, reconstructions)
         plt.ylabel("reconstruction")
-        plt.xlabel("input")
+        plt.xlabel("original")
+        plt.title(data_type)
+
+        # set up drop of outliers in visualisation if turned on
+        if drop_outliers:
+            y_upper_limit = max(data)
+        else:
+            y_upper_limit = None
+        plt.ylim(top=y_upper_limit, bottom=0.0)
+
         plt.show()
