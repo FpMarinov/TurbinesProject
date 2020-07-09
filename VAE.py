@@ -12,10 +12,10 @@ import numpy as np
 import csv
 
 data_type = "velocity"
-mode = "train"
-epochs = 200
+mode = "test"
+epochs = 30
 visualise_scatter = True
-drop_outliers = True
+drop_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 
@@ -217,6 +217,46 @@ if __name__ == "__main__":
         # save weights
         torch.save(vae.state_dict(), weights_path)
 
+        # record average training and validation losses per epoch
+        with open('loss_record.csv', 'w') as csv_file:
+            csv_writer = csv.writer(csv_file, delimiter='\t')
+            headers = ["avg_train_loss", "avg_val_loss"]
+            csv_writer.writerow(headers)
+
+            for avg_train_loss, avg_val_loss in zip(average_training_losses, average_validation_losses):
+                row = [avg_train_loss, avg_val_loss]
+                csv_writer.writerow(row)
+
+        # visualise average training and validation losses per epoch
+        if visualise_training_and_validation_loss:
+            # plot losses focused on training losses
+            plt.figure()
+            epochs_arr = np.linspace(0, epochs - 1, epochs)
+            plt.plot(epochs_arr, average_training_losses, label="avg_train_loss", color="blue")
+            plt.plot(epochs_arr, average_validation_losses, label="avg_val_loss", color="red")
+
+            # set axis labels and legend
+            plt.ylabel("avg_loss")
+            plt.xlabel("epoch")
+            plt.legend(loc='best')
+            plt.title("losses_train_focus")
+
+            # focus plot on train losses
+            avg_train_loss_max = max(average_training_losses)
+            unit = avg_train_loss_max / 21
+            plt.ylim(top=avg_train_loss_max + unit, bottom=-unit)
+
+            # plot all losses
+            plt.figure()
+            plt.plot(epochs_arr, average_training_losses, label="avg_train_loss", color="blue")
+            plt.plot(epochs_arr, average_validation_losses, label="avg_val_loss", color="red")
+
+            # set axis labels and legend
+            plt.ylabel("avg_loss")
+            plt.xlabel("epoch")
+            plt.legend(loc='best')
+            plt.title("losses_no_focus")
+
     # format all data
     data_tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
     data_tensor = data_tensor.to(device)
@@ -230,47 +270,6 @@ if __name__ == "__main__":
     if mode != "train":
         vae.load_state_dict(torch.load(weights_path))
         vae.eval()
-
-    # record average training and validation losses per epoch
-    with open('loss_record.csv', 'w') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter='\t')
-        headers = ["avg_train_loss", "avg_val_loss"]
-        csv_writer.writerow(headers)
-
-        for avg_train_loss, avg_val_loss in zip(average_training_losses, average_validation_losses):
-            row = [avg_train_loss, avg_val_loss]
-            csv_writer.writerow(row)
-
-    # visualise average training and validation losses per epoch
-    if visualise_training_and_validation_loss:
-
-        # plot losses focused on training losses
-        plt.figure()
-        epochs_arr = np.linspace(0, epochs - 1, epochs)
-        plt.plot(epochs_arr, average_training_losses, label="avg_train_loss", color="blue")
-        plt.plot(epochs_arr, average_validation_losses, label="avg_val_loss", color="red")
-
-        # set axis labels and legend
-        plt.ylabel("avg_loss")
-        plt.xlabel("epoch")
-        plt.legend(loc='best')
-        plt.title("losses_train_focus")
-
-        # focus plot on train losses
-        avg_train_loss_max = max(average_training_losses)
-        unit = avg_train_loss_max / 21
-        plt.ylim(top=avg_train_loss_max + unit, bottom=-unit)
-
-        # plot all losses
-        plt.figure()
-        plt.plot(epochs_arr, average_training_losses, label="avg_train_loss", color="blue")
-        plt.plot(epochs_arr, average_validation_losses, label="avg_val_loss", color="red")
-
-        # set axis labels and legend
-        plt.ylabel("avg_loss")
-        plt.xlabel("epoch")
-        plt.legend(loc='best')
-        plt.title("losses_no_focus")
 
     # visualise reconstruction if visualisation is on
     if visualise_scatter:
