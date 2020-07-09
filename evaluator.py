@@ -14,5 +14,5 @@ class Evaluator(object):
     def log(self):
         arr = np.array(self.losses)
         average_loss = np.mean(arr[np.isfinite(arr)])
-        print("Average loss: {}".format(average_loss))
+        print("Average Validation Loss: {}".format(average_loss))
         return average_loss
