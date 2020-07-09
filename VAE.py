@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-data_type = "thrust"
+data_type = "velocity"
 mode = "train"
-epochs = 1
+epochs = 10
 visualise = True
 drop_outliers = True
 show_y_equals_x = True

@@ -12,4 +12,4 @@ class Evaluator(object):
         self.total_loss += self.eval_method(predictions[0], predictions[1], predictions[2], targets)
     
     def log(self):
-        print("Total loss: {}".format(self.total_loss/self.count))
+        print("Average loss: {}".format(self.total_loss/self.count))
