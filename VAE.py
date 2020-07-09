@@ -11,14 +11,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-data_type = "torque"
-mode = "test"
-epochs = 100
+data_type = "thrust"
+mode = "train"
+epochs = 1
 visualise = True
-drop_outliers = False
-show_y_equals_x = False
+drop_outliers = True
+show_y_equals_x = True
 
 data_sequence_size = 5
+batch_size = 5
 convolution_channel_size_1 = 64
 convolution_channel_size_2 = 32
 fully_connected_unit_size = 400
@@ -158,8 +159,9 @@ def loss_fn(output, mean, logvar, target):
     mse = criterion(output, target)
 
     kl = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
+    mkl = kl / (batch_size * data_sequence_size)
 
-    return mse + kl
+    return mse + mkl
 
 
 if __name__ == "__main__":
@@ -205,9 +207,9 @@ if __name__ == "__main__":
     if mode == "train":
         # load training and validation data
         train_loader = DataLoader(train_dataset,
-                                  batch_size=5, shuffle=True)
+                                  batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset,
-                                batch_size=5, shuffle=True)
+                                batch_size=batch_size, shuffle=True)
 
         # do training
         trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq)
@@ -223,7 +225,7 @@ if __name__ == "__main__":
 
     # load all data
     val_loader = DataLoader(dataset,
-                            batch_size=5, shuffle=True)
+                            batch_size=batch_size, shuffle=True)
 
     # load model weights and activate evaluation if training is off
     if mode != "train":

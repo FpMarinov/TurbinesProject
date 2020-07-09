@@ -38,6 +38,7 @@ class Trainer():
 
                 self.logger.update(loss=loss.cpu().detach().item()/len(inputs_targets))
                 self.logger.update(lr=self.optimizer.param_groups[0]["lr"])
+
             self.eval_model()
             self.epoch += 1
 
@@ -52,7 +53,6 @@ class Trainer():
 
                 model_time = time.time()
                 outputs = self.model(inputs_targets)
-
                 model_time = time.time() - model_time
 
                 evaluator_time = time.time()

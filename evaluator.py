@@ -8,7 +8,7 @@ class Evaluator(object):
         self.count = 0
 
     def update(self, targets, predictions):
-        self.count += len(targets)
+        self.count += 1
         self.total_loss += self.eval_method(predictions[0], predictions[1], predictions[2], targets)
     
     def log(self):
