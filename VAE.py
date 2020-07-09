@@ -13,12 +13,12 @@ import numpy as np
 
 data_type = "torque"
 mode = "test"
-epochs = 11
+epochs = 100
 visualise = True
-drop_outliers = True
-show_y_equals_x = True
+drop_outliers = False
+show_y_equals_x = False
 
-data_slice_size = 5
+data_sequence_size = 5
 convolution_channel_size_1 = 64
 convolution_channel_size_2 = 32
 fully_connected_unit_size = 400
@@ -30,6 +30,7 @@ weights_path = "./vae_net_%s.pth" % data_type
 
 seed = 1
 lr = 1e-3
+validation_data_fraction = 0.2
 print_freq = 10
 
 
@@ -117,6 +118,7 @@ class Decoder(nn.Module):
         x = self.bn_fc2(x)
         # print("-3:", x.size())
         x = x.view(z_input.size()[0], convolution_channel_size_2, 1)
+        # print("-3.5:", x.size())
         x = F.interpolate(x, 3)
         # print("-4:", x.size())
         x = self.conv1(x)
@@ -184,16 +186,17 @@ if __name__ == "__main__":
     vae.to(device)
 
     # split data into training and validation data
-    data_train, data_val = train_test_split(data, test_size=0.2, train_size=0.8, shuffle=False)
+    data_train, data_val = train_test_split(data, test_size=validation_data_fraction,
+                                            train_size=1-validation_data_fraction, shuffle=False)
 
     # format training data
-    tensor_train = torch.FloatTensor(data_train).view(-1, 1, data_slice_size)
+    tensor_train = torch.FloatTensor(data_train).view(-1, 1, data_sequence_size)
     print("init_train_size ", tensor_train.size())
     tensor_train = tensor_train.to(device)
     train_dataset = TensorDataset(tensor_train)
 
     # format validation data
-    tensor_val = torch.FloatTensor(data_val).view(-1, 1, data_slice_size)
+    tensor_val = torch.FloatTensor(data_val).view(-1, 1, data_sequence_size)
     print("init_val_size ", tensor_val.size())
     tensor_val = tensor_val.to(device)
     val_dataset = TensorDataset(tensor_val)
@@ -214,7 +217,7 @@ if __name__ == "__main__":
         torch.save(vae.state_dict(), weights_path)
 
     # format all data
-    data_tensor = torch.FloatTensor(data).view(-1, 1, data_slice_size)
+    data_tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
     data_tensor = data_tensor.to(device)
     dataset = TensorDataset(data_tensor)
 
@@ -222,7 +225,7 @@ if __name__ == "__main__":
     val_loader = DataLoader(dataset,
                             batch_size=5, shuffle=True)
 
-    # test model if training is off
+    # load model weights and activate evaluation if training is off
     if mode != "train":
         vae.load_state_dict(torch.load(weights_path))
         vae.eval()
