@@ -36,7 +36,7 @@ class Trainer():
                 loss.backward()
                 self.optimizer.step()
 
-                self.logger.update(loss=loss.cpu().detach().item()/len(inputs_targets))
+                self.logger.update(loss=loss.cpu().detach().item())
                 self.logger.update(lr=self.optimizer.param_groups[0]["lr"])
 
             self.eval_model()

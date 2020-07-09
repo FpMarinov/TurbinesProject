@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-data_type = "velocity"
+data_type = "torque"
 mode = "train"
 epochs = 10
 visualise = True
