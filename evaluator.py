@@ -1,15 +1,18 @@
+import numpy as np
 
 class Evaluator(object):
     
     def __init__(self, eval_method):
         self.eval_method = eval_method
-
-        self.total_loss = 0.0
-        self.count = 0
+        self.losses = []
 
     def update(self, targets, predictions):
-        self.count += 1
-        self.total_loss += self.eval_method(predictions[0], predictions[1], predictions[2], targets)
-    
+        loss = self.eval_method(predictions[0], predictions[1], predictions[2], targets)
+        loss = loss.cpu().detach().item()
+        self.losses.append(loss)
+
     def log(self):
-        print("Average loss: {}".format(self.total_loss/self.count))
+        arr = np.array(self.losses)
+        average_loss = np.mean(arr[np.isfinite(arr)])
+        print("Average loss: {}".format(average_loss))
+        return average_loss

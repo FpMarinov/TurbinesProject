@@ -1,8 +1,9 @@
 import time
 import torch
-
 from utils import Logger
 from evaluator import Evaluator
+import numpy as np
+
 
 class Trainer():
 
@@ -21,8 +22,14 @@ class Trainer():
 
     def train_model(self):
         self.model.to(self.device)
+
+        average_training_losses = []
+        average_validation_losses = []
+
         while self.epoch < self.num_epochs:
             self.model.train()
+
+            training_losses_in_epoch = []
 
             for inputs_targets in self.logger.log(self.train_loader, self.print_freq, "Epoch: [{}]".format(self.epoch)):
 
@@ -36,11 +43,23 @@ class Trainer():
                 loss.backward()
                 self.optimizer.step()
 
-                self.logger.update(loss=loss.cpu().detach().item())
+                loss_item = loss.cpu().detach().item()
+
+                self.logger.update(loss=loss_item)
                 self.logger.update(lr=self.optimizer.param_groups[0]["lr"])
 
-            self.eval_model()
+                training_losses_in_epoch.append(loss_item)
+
+            arr = np.array(training_losses_in_epoch)
+            average_training_loss = np.mean(arr[np.isfinite(arr)])
+            average_training_losses.append(average_training_loss)
+
+            average_validation_loss = self.eval_model()
+            average_validation_losses.append(average_validation_loss)
+
             self.epoch += 1
+
+        return average_training_losses, average_validation_losses
 
     def eval_model(self):
         self.model.eval()
@@ -61,4 +80,5 @@ class Trainer():
 
                 self.logger.update(model_time=model_time, evaluator_time=evaluator_time)
 
-        self.evaluator.log()
+        average_validation_loss = self.evaluator.log()
+        return average_validation_loss

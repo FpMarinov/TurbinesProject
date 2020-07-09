@@ -9,14 +9,15 @@ from trainer import Trainer
 from DataReader import get_lists
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
 
-
-data_type = "torque"
+data_type = "thrust"
 mode = "train"
 epochs = 10
-visualise = True
+visualise_scatter = True
 drop_outliers = True
 show_y_equals_x = True
+visualise_training_and_validation_loss = True
 
 data_sequence_size = 5
 batch_size = 5
@@ -193,13 +194,11 @@ if __name__ == "__main__":
 
     # format training data
     tensor_train = torch.FloatTensor(data_train).view(-1, 1, data_sequence_size)
-    print("init_train_size ", tensor_train.size())
     tensor_train = tensor_train.to(device)
     train_dataset = TensorDataset(tensor_train)
 
     # format validation data
     tensor_val = torch.FloatTensor(data_val).view(-1, 1, data_sequence_size)
-    print("init_val_size ", tensor_val.size())
     tensor_val = tensor_val.to(device)
     val_dataset = TensorDataset(tensor_val)
 
@@ -213,7 +212,7 @@ if __name__ == "__main__":
 
         # do training
         trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq)
-        trainer.train_model()
+        average_training_losses, average_validation_losses = trainer.train_model()
 
         # save weights
         torch.save(vae.state_dict(), weights_path)
@@ -232,8 +231,49 @@ if __name__ == "__main__":
         vae.load_state_dict(torch.load(weights_path))
         vae.eval()
 
+    # record average training and validation losses per epoch
+    with open('loss_record.csv', 'w') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter='\t')
+        headers = ["avg_train_loss", "avg_val_loss"]
+        csv_writer.writerow(headers)
+
+        for avg_train_loss, avg_val_loss in zip(average_training_losses, average_validation_losses):
+            row = [avg_train_loss, avg_val_loss]
+            csv_writer.writerow(row)
+
+    # visualise average training and validation losses per epoch
+    if visualise_training_and_validation_loss:
+
+        # plot losses focused on training losses
+        plt.figure()
+        epochs_arr = np.linspace(0, epochs - 1, epochs)
+        plt.plot(epochs_arr, average_training_losses, label="avg_train_loss", color="blue")
+        plt.plot(epochs_arr, average_validation_losses, label="avg_val_loss", color="red")
+
+        # set axis labels and legend
+        plt.ylabel("avg_loss")
+        plt.xlabel("epoch")
+        plt.legend(loc='best')
+        plt.title("losses_train_focus")
+
+        # focus plot on train losses
+        avg_train_loss_max = max(average_training_losses)
+        unit = avg_train_loss_max / 21
+        plt.ylim(top=avg_train_loss_max + unit, bottom=-unit)
+
+        # plot all losses
+        plt.figure()
+        plt.plot(epochs_arr, average_training_losses, label="avg_train_loss", color="blue")
+        plt.plot(epochs_arr, average_validation_losses, label="avg_val_loss", color="red")
+
+        # set axis labels and legend
+        plt.ylabel("avg_loss")
+        plt.xlabel("epoch")
+        plt.legend(loc='best')
+        plt.title("losses_no_focus")
+
     # visualise reconstruction if visualisation is on
-    if visualise:
+    if visualise_scatter:
 
         # get lists of original data and reconstructions
         reconstructions = []
@@ -253,6 +293,7 @@ if __name__ == "__main__":
             originals.extend(inputs_targets)
 
         # make scatter plot of originals and reconstructions
+        plt.figure()
         plt.scatter(originals, reconstructions)
 
         # make plot of y = x if turned on
@@ -268,10 +309,11 @@ if __name__ == "__main__":
         plt.title(data_type)
 
         # set up drop of outliers in visualisation if turned on
+        unit = max_data / 21
         if drop_outliers:
-            y_upper_limit = max_data
+            y_upper_limit = max_data + unit
         else:
             y_upper_limit = None
-        plt.ylim(top=y_upper_limit, bottom=0.0)
+        plt.ylim(top=y_upper_limit, bottom=-unit)
 
         plt.show()
