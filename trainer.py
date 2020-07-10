@@ -66,7 +66,7 @@ class Trainer():
         # Evaluate model
         self.evaluator = Evaluator(self.loss_criterion)
         with torch.no_grad():
-            for inputs_targets in self.logger.log(self.val_loader, self.print_freq, "Test:"):
+            for inputs_targets in self.logger.log(self.val_loader, self.print_freq, "Validation:"):
 
                 inputs_targets = inputs_targets[0]
 

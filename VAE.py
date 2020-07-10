@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "velocity"
-mode = "test"
+data_type = "torque"
+mode = "train"
 epochs = 30
 visualise_scatter = True
 drop_outliers = False

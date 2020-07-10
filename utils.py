@@ -105,7 +105,7 @@ class Logger(object):
                 '{meters}',
                 'time: {time}',
                 'data: {data}',
-                'max_mem: {memory:.0f}'
+                'max_mem_allocated: {memory:.0f} MB'
             ])
         else:
             log_msg = self.delimiter.join([
