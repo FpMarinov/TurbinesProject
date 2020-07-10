@@ -3,29 +3,30 @@ import time
 import datetime
 from collections import defaultdict, deque
 
+
 class Metric(object):
-    
+
     def __init__(self, max_len=20, fmt=None):
-        ''' Instantiates a Metric
+        """ Instantiates a Metric
 
             max_len: length of queue
             fmt: format of this Metric
-        '''
+        """
         if fmt is None:
             fmt = "{median:.4f} ({global_average:.4f})"
 
         self.fmt = fmt
-        
+
         self.deque = deque(maxlen=max_len)
         self.total = 0.0
         self.count = 0
 
     def update(self, value, n=1):
-        ''' Updates a Metric
+        """ Updates a Metric
 
             value: value to append to queue
             n: number of items added
-        '''
+        """
         self.deque.append(value)
         self.count += n
         self.total += value * n
@@ -35,11 +36,11 @@ class Metric(object):
         tensor_type = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
         tensor = torch.Tensor(list(self.deque)).type(tensor_type)
         return tensor.mean().item()
-        
+
     @property
     def value(self):
         return self.deque[-1]
-    
+
     @property
     def max(self):
         return max(self.deque)
@@ -48,8 +49,8 @@ class Metric(object):
     def median(self):
         tensor = torch.Tensor(list(self.deque))
         return tensor.median().item()
-    
-    @property    
+
+    @property
     def global_average(self):
         return self.total / self.count
 
@@ -61,16 +62,17 @@ class Metric(object):
             max=self.max,
             value=self.value)
 
+
 class Logger(object):
-    ''' Implements a Logger for logging the progress of an epoch
-    '''
+    """ Implements a Logger for logging the progress of an epoch
+    """
 
     def __init__(self):
         self.metrics = defaultdict(Metric)
         self.delimiter = "  "
-        
+
     def update(self, **kwargs):
-        for k,v in kwargs.items():
+        for k, v in kwargs.items():
             if isinstance(v, torch.Tensor):
                 v = v.item()
             self.metrics[k].update(v)
@@ -87,7 +89,7 @@ class Logger(object):
         return self.delimiter.join(loss_str)
 
     def log(self, iterable_loader, print_freq, header=None):
-        
+
         i = 0
         if header is None:
             header = ''

@@ -1,7 +1,8 @@
 import numpy as np
 
+
 class Evaluator(object):
-    
+
     def __init__(self, eval_method):
         self.eval_method = eval_method
         self.losses = []

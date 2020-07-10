@@ -5,10 +5,11 @@ from evaluator import Evaluator
 import numpy as np
 
 
-class Trainer():
+class Trainer:
 
     def __init__(self, model, num_epochs, train_loader, val_loader,
-                device, loss_criterion, optimizer, print_freq):
+                 device, loss_criterion, optimizer, print_freq):
+        self.evaluator = Evaluator(self.loss_criterion)
         self.model = model
         self.num_epochs = num_epochs
         self.train_loader = train_loader
@@ -32,7 +33,6 @@ class Trainer():
             training_losses_in_epoch = []
 
             for inputs_targets in self.logger.log(self.train_loader, self.print_freq, "Epoch: [{}]".format(self.epoch)):
-
                 inputs_targets = inputs_targets[0]
 
                 self.optimizer.zero_grad()
@@ -64,10 +64,8 @@ class Trainer():
     def eval_model(self):
         self.model.eval()
         # Evaluate model
-        self.evaluator = Evaluator(self.loss_criterion)
         with torch.no_grad():
             for inputs_targets in self.logger.log(self.val_loader, self.print_freq, "Validation:"):
-
                 inputs_targets = inputs_targets[0]
 
                 model_time = time.time()
