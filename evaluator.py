@@ -12,8 +12,11 @@ class Evaluator(object):
         loss = loss.cpu().detach().item()
         self.losses.append(loss)
 
-    def log(self):
+    def log(self, drop_infinity_from_loss_record_calc):
         arr = np.array(self.losses)
-        average_loss = np.mean(arr[np.isfinite(arr)])
+        if drop_infinity_from_loss_record_calc:
+            average_loss = np.mean(arr[np.isfinite(arr)])
+        else:
+            average_loss = np.mean(arr)
         print("Average Validation Loss: {}".format(average_loss))
         return average_loss

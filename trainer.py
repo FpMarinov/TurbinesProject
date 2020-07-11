@@ -8,7 +8,8 @@ import numpy as np
 class Trainer:
 
     def __init__(self, model, num_epochs, train_loader, val_loader,
-                 device, loss_criterion, optimizer, print_freq):
+                 device, loss_criterion, optimizer, print_freq, drop_infinity_from_loss_record_calc):
+        self.drop_infinity_from_loss_record_calc = drop_infinity_from_loss_record_calc
         self.loss_criterion = loss_criterion
         self.evaluator = Evaluator(self.loss_criterion)
         self.model = model
@@ -51,7 +52,10 @@ class Trainer:
                 training_losses_in_epoch.append(loss_item)
 
             arr = np.array(training_losses_in_epoch)
-            average_training_loss = np.mean(arr[np.isfinite(arr)])
+            if self.drop_infinity_from_loss_record_calc:
+                average_training_loss = np.mean(arr[np.isfinite(arr)])
+            else:
+                average_training_loss = np.mean(arr)
             average_training_losses.append(average_training_loss)
 
             average_validation_loss = self.eval_model()
@@ -78,5 +82,5 @@ class Trainer:
 
                 self.logger.update(model_time=model_time, evaluator_time=evaluator_time)
 
-        average_validation_loss = self.evaluator.log()
+        average_validation_loss = self.evaluator.log(self.drop_infinity_from_loss_record_calc)
         return average_validation_loss

@@ -11,13 +11,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "torque"
+data_type = "thrust"
 mode = "train"
 epochs = 10
 visualise_scatter = True
 drop_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
+drop_infinity_from_loss_record_calc = False
 
 data_sequence_size = 5
 batch_size = 5
@@ -211,7 +212,7 @@ if __name__ == "__main__":
                                 batch_size=batch_size, shuffle=True)
 
         # do training
-        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq)
+        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq, drop_infinity_from_loss_record_calc)
         average_training_losses, average_validation_losses = trainer.train_model()
 
         # save weights
