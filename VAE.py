@@ -13,7 +13,7 @@ import csv
 
 data_type = "torque"
 mode = "train"
-epochs = 30
+epochs = 10
 visualise_scatter = True
 drop_outliers = False
 show_y_equals_x = True

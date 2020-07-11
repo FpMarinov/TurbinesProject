@@ -9,6 +9,7 @@ class Trainer:
 
     def __init__(self, model, num_epochs, train_loader, val_loader,
                  device, loss_criterion, optimizer, print_freq):
+        self.loss_criterion = loss_criterion
         self.evaluator = Evaluator(self.loss_criterion)
         self.model = model
         self.num_epochs = num_epochs
@@ -16,7 +17,6 @@ class Trainer:
         self.val_loader = val_loader
         self.device = device
         self.print_freq = print_freq
-        self.loss_criterion = loss_criterion
         self.optimizer = optimizer
         self.epoch = 0
         self.logger = Logger()
@@ -65,7 +65,7 @@ class Trainer:
         self.model.eval()
         # Evaluate model
         with torch.no_grad():
-            for inputs_targets in self.logger.log(self.val_loader, self.print_freq, "Validation:"):
+            for inputs_targets in self.logger.log(self.val_loader, self.print_freq, "Validation:", training=False):
                 inputs_targets = inputs_targets[0]
 
                 model_time = time.time()

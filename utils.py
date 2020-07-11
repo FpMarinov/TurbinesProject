@@ -13,7 +13,7 @@ class Metric(object):
             fmt: format of this Metric
         """
         if fmt is None:
-            fmt = "{median:.4f} ({global_average:.4f})"
+            fmt = "[roll_median: {median:.4f}, global_avg: {global_average:.4f}]"
 
         self.fmt = fmt
 
@@ -70,6 +70,7 @@ class Logger(object):
     def __init__(self):
         self.metrics = defaultdict(Metric)
         self.delimiter = "  "
+        self.metrics["lr"].fmt = "{value:.4f}"
 
     def update(self, **kwargs):
         for k, v in kwargs.items():
@@ -83,12 +84,21 @@ class Logger(object):
     def __str__(self):
         loss_str = []
         for name, meter in self.metrics.items():
-            loss_str.append(
-                "{}: {}".format(name, str(meter))
-            )
+            if self.training:
+                if name == "loss" or name == "lr":
+                    loss_str.append(
+                        "{}: {}".format(name, str(meter))
+                    )
+            else:
+                if name == "model_time" or name == "evaluator_time":
+                    loss_str.append(
+                        "{}: {}".format(name, str(meter))
+                    )
         return self.delimiter.join(loss_str)
 
-    def log(self, iterable_loader, print_freq, header=None):
+    def log(self, iterable_loader, print_freq, header=None, training=True):
+
+        self.training = training
 
         i = 0
         if header is None:
@@ -103,20 +113,20 @@ class Logger(object):
             log_msg = self.delimiter.join([
                 header,
                 '[{0' + space_fmt + '}/{1}]',
-                'eta: {eta}',
+                'eta_epoch: {eta}',
                 '{meters}',
-                'time: {time}',
-                'data: {data}',
-                'max_mem_allocated: {memory:.0f} MB'
+                'iter_time_roll_avg: {time}s',
+                'data_load: {data}s',
+                'max_mem_alloc: {memory:.0f}MB'
             ])
         else:
             log_msg = self.delimiter.join([
                 header,
                 '[{0' + space_fmt + '}/{1}]',
-                'eta: {eta}',
+                'eta_epoch: {eta}',
                 '{meters}',
-                'time: {time}',
-                'data: {data}'
+                'iter_time_roll_avg: {time}s',
+                'data_load: {data}s'
             ])
 
         MB = 1024.0 * 1024.0
@@ -139,7 +149,7 @@ class Logger(object):
                         i, len(iterable_loader), eta=eta_string,
                         meters=str(self),
                         time=str(iter_time), data=str(data_time)))
-            self.metrics.clear()
+
             i += 1
             end = time.time()
         total_time = time.time() - start_time
