@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "thrust"
+data_type = "torque"
 mode = "train"
-epochs = 10
-visualise_scatter = True
+epochs = 30
+visualise_scatter = False
 drop_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
@@ -316,4 +316,4 @@ if __name__ == "__main__":
             y_upper_limit = None
         plt.ylim(top=y_upper_limit, bottom=-unit)
 
-        plt.show()
+    plt.show()
