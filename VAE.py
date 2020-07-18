@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "torque"
+data_type = "velocity"
 mode = "train"
-epochs = 30
-visualise_scatter = False
+epochs = 10
+visualise_scatter = True
 drop_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
@@ -44,18 +44,12 @@ class Encoder(nn.Module):
 
         # 1 in channel, 64 out channels, 3 kernel, stride=padding=1
         self.conv1 = nn.Conv1d(1, convolution_channel_size_1, convolution_kernel, 1, 1)
-        self.bn_conv1 = nn.BatchNorm1d(convolution_channel_size_1)
 
         # 64 in channel, 32 out channels, 3 kernel, stride=padding=1
         self.conv2 = nn.Conv1d(convolution_channel_size_1, convolution_channel_size_2, convolution_kernel, 1, 1)
-        self.bn_conv2 = nn.BatchNorm1d(convolution_channel_size_2)
-
-        # kernel = 3, stride = 1, pooling
-        self.pool = nn.MaxPool1d(pooling_kernel, 1)
 
         # fc1_size in, 400 out
         self.fc1 = nn.Linear(fc1_size, fully_connected_unit_size)
-        self.bn_fc1 = nn.BatchNorm1d(fully_connected_unit_size)
 
         # 400 in, z_dim out
         self.z_mu = nn.Linear(fully_connected_unit_size, z_dim)
@@ -63,29 +57,25 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         # print("1:", x.size())
+
         x = self.conv1(x)
         x = F.relu(x)
-        x = self.bn_conv1(x)
         # print("2:", x.size())
-        x = self.pool(x)
-        # print("3:", x.size())
+
         x = self.conv2(x)
         x = F.relu(x)
-        x = self.bn_conv2(x)
-        # print("4:", x.size())
-        x = self.pool(x)
-        # print("5:", x.size())
+        # print("3:", x.size())
+
         x = torch.flatten(x, 1)
-        # print("6:", x.size())
+        # print("4:", x.size())
+
         x = self.fc1(x)
         x = F.relu(x)
-        # print("7:", x.size())
-
-        x = self.bn_fc1(x)
-        # print("8:", x.size())
+        # print("5:", x.size())
 
         z_loc = self.z_mu(x)
         z_logvar = self.z_sigma(x)
+        # print("6:", z_loc.size())
 
         return z_loc, z_logvar
 
@@ -97,43 +87,40 @@ class Decoder(nn.Module):
 
         # z_dim in, 400 out
         self.fc1 = nn.Linear(z_dim, fully_connected_unit_size)
-        self.bn_fc1 = nn.BatchNorm1d(fully_connected_unit_size)
 
         # 400 in, output_size out
         self.fc2 = nn.Linear(fully_connected_unit_size, output_size)
-        self.bn_fc2 = nn.BatchNorm1d(output_size)
 
         # 32 in channels, 64 out channels, 3 kernel, stride=padding=1
         self.conv1 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_1, convolution_kernel, 1, 1)
-        self.bn_conv1 = nn.BatchNorm1d(convolution_channel_size_1)
 
         # 64 in channels, 1 out channel, 3 kernel, stride=padding=1
         self.conv2 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
         # print("-1:", z_input.size())
+
         x = self.fc1(z_input)
         x = F.relu(x)
-        x = self.bn_fc1(x)
         # print("-2:", x.size())
+
         x = self.fc2(x)
         x = F.relu(x)
-        x = self.bn_fc2(x)
         # print("-3:", x.size())
-        x = x.view(z_input.size()[0], convolution_channel_size_2, 1)
-        # print("-3.5:", x.size())
-        x = F.interpolate(x, 3)
+
+        x = x.view(z_input.size()[0], convolution_channel_size_2, 5)
         # print("-4:", x.size())
+
         x = self.conv1(x)
         x = F.relu(x)
-        x = self.bn_conv1(x)
         # print("-5:", x.size())
-        x = F.interpolate(x, 5)
-        # print("-6:", x.size())
+
         x = self.conv2(x)
-        # print("-7:", x.size())
+        # print("-6:", x.size())
+
         output = F.relu(x)
-        # print("-8:", x.size())
+        # print("-7:", x.size())
+
         return output
 
 
@@ -141,8 +128,8 @@ class VAE(nn.Module):
 
     def __init__(self, z_dim):
         super(VAE, self).__init__()
-        self.encoder = Encoder(z_dim, convolution_channel_size_2)
-        self.decoder = Decoder(z_dim, convolution_channel_size_2)
+        self.encoder = Encoder(z_dim, 160)
+        self.decoder = Decoder(z_dim, 160)
 
     def forward(self, x):
         z_mean, z_logvar = self.encoder(x)
@@ -152,7 +139,7 @@ class VAE(nn.Module):
 
         return output, z_mean, z_logvar
 
-    def reconstruct_digit(self, sample):
+    def reconstruct_data(self, sample):
         return self.decoder(sample)
 
 
