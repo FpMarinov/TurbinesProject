@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "velocity"
+data_type = "thrust"
 mode = "train"
 epochs = 10
 visualise_scatter = True
@@ -22,8 +22,9 @@ drop_infinity_from_loss_record_calc = False
 
 data_sequence_size = 5
 batch_size = 5
-convolution_channel_size_1 = 32
-convolution_channel_size_2 = 16
+convolution_channel_size_1 = 16
+convolution_channel_size_2 = 8
+convolution_channel_size_3 = 16
 fully_connected_unit_size = 400
 latent_dimensions = 1
 convolution_kernel = 3
@@ -45,6 +46,7 @@ class Encoder(nn.Module):
         # convolution
         self.conv1 = nn.Conv1d(1, convolution_channel_size_1, convolution_kernel, 1, 1)
         self.conv2 = nn.Conv1d(convolution_channel_size_1, convolution_channel_size_2, convolution_kernel, 1, 1)
+        self.conv3 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_3, convolution_kernel, 1, 1)
 
         # fully connected transformation
         self.fc1 = nn.Linear(fc1_size, fully_connected_unit_size)
@@ -61,6 +63,10 @@ class Encoder(nn.Module):
         # print("2:", x.size())
 
         x = self.conv2(x)
+        x = F.relu(x)
+        # print("2.5:", x.size())
+
+        x = self.conv3(x)
         x = F.relu(x)
         # print("3:", x.size())
 
@@ -90,8 +96,9 @@ class Decoder(nn.Module):
         self.fc1 = nn.Linear(fully_connected_unit_size, output_size)
 
         # convolution
-        self.conv1 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_1, convolution_kernel, 1, 1)
-        self.conv2 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
+        self.conv1 = nn.Conv1d(convolution_channel_size_3, convolution_channel_size_2, convolution_kernel, 1, 1)
+        self.conv2 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_1, convolution_kernel, 1, 1)
+        self.conv3 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
         # print("-1:", z_input.size())
@@ -104,7 +111,7 @@ class Decoder(nn.Module):
         x = F.relu(x)
         # print("-3:", x.size())
 
-        x = x.view(z_input.size()[0], convolution_channel_size_2, 5)
+        x = x.view(z_input.size()[0], convolution_channel_size_3, 5)
         # print("-4:", x.size())
 
         x = self.conv1(x)
@@ -112,10 +119,12 @@ class Decoder(nn.Module):
         # print("-5:", x.size())
 
         x = self.conv2(x)
-        # print("-6:", x.size())
+        x = F.relu(x)
+        # print("-5.5:", x.size())
 
+        x = self.conv3(x)
         output = F.relu(x)
-        # print("-7:", x.size())
+        # print("-6:", x.size())
 
         return output
 
@@ -124,8 +133,8 @@ class VAE(nn.Module):
 
     def __init__(self, z_dim):
         super(VAE, self).__init__()
-        self.encoder = Encoder(z_dim, convolution_channel_size_2 * data_sequence_size)
-        self.decoder = Decoder(z_dim, convolution_channel_size_2 * data_sequence_size)
+        self.encoder = Encoder(z_dim, convolution_channel_size_3 * data_sequence_size)
+        self.decoder = Decoder(z_dim, convolution_channel_size_3 * data_sequence_size)
 
     def forward(self, x):
         z_mean, z_logvar = self.encoder(x)
