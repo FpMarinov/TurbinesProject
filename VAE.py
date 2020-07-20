@@ -84,10 +84,10 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         # latent space transformation
-        self.fc1 = nn.Linear(z_dim, fully_connected_unit_size)
+        self.fc_lat = nn.Linear(z_dim, fully_connected_unit_size)
 
         # fully connected transformation
-        self.fc2 = nn.Linear(fully_connected_unit_size, output_size)
+        self.fc1 = nn.Linear(fully_connected_unit_size, output_size)
 
         # convolution
         self.conv1 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_1, convolution_kernel, 1, 1)
@@ -96,11 +96,11 @@ class Decoder(nn.Module):
     def forward(self, z_input):
         # print("-1:", z_input.size())
 
-        x = self.fc1(z_input)
+        x = self.fc_lat(z_input)
         x = F.relu(x)
         # print("-2:", x.size())
 
-        x = self.fc2(x)
+        x = self.fc1(x)
         x = F.relu(x)
         # print("-3:", x.size())
 
