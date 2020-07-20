@@ -42,16 +42,14 @@ class Encoder(nn.Module):
     def __init__(self, z_dim, fc1_size):
         super(Encoder, self).__init__()
 
-        # 1 in channel, 64 out channels, 3 kernel, stride=padding=1
+        # convolution
         self.conv1 = nn.Conv1d(1, convolution_channel_size_1, convolution_kernel, 1, 1)
-
-        # 64 in channel, 32 out channels, 3 kernel, stride=padding=1
         self.conv2 = nn.Conv1d(convolution_channel_size_1, convolution_channel_size_2, convolution_kernel, 1, 1)
 
-        # fc1_size in, 400 out
+        # fully connected transformation
         self.fc1 = nn.Linear(fc1_size, fully_connected_unit_size)
 
-        # 400 in, z_dim out
+        # latent space transformation
         self.z_mu = nn.Linear(fully_connected_unit_size, z_dim)
         self.z_sigma = nn.Linear(fully_connected_unit_size, z_dim)
 
@@ -85,16 +83,14 @@ class Decoder(nn.Module):
     def __init__(self, z_dim, output_size):
         super(Decoder, self).__init__()
 
-        # z_dim in, 400 out
+        # latent space transformation
         self.fc1 = nn.Linear(z_dim, fully_connected_unit_size)
 
-        # 400 in, output_size out
+        # fully connected transformation
         self.fc2 = nn.Linear(fully_connected_unit_size, output_size)
 
-        # 32 in channels, 64 out channels, 3 kernel, stride=padding=1
+        # convolution
         self.conv1 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_1, convolution_kernel, 1, 1)
-
-        # 64 in channels, 1 out channel, 3 kernel, stride=padding=1
         self.conv2 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
