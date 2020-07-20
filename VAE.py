@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "thrust"
+data_type = "velocity"
 mode = "train"
 epochs = 10
 visualise_scatter = True
@@ -25,7 +25,7 @@ batch_size = 5
 convolution_channel_size_1 = 32
 convolution_channel_size_2 = 16
 fully_connected_unit_size = 400
-latent_dimensions = 20
+latent_dimensions = 1
 convolution_kernel = 3
 pooling_kernel = 3
 
