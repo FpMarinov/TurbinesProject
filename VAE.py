@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "velocity"
+data_type = "thrust"
 mode = "train"
 epochs = 10
 visualise_scatter = True
@@ -128,8 +128,8 @@ class VAE(nn.Module):
 
     def __init__(self, z_dim):
         super(VAE, self).__init__()
-        self.encoder = Encoder(z_dim, 160)
-        self.decoder = Decoder(z_dim, 160)
+        self.encoder = Encoder(z_dim, convolution_channel_size_2 * data_sequence_size)
+        self.decoder = Decoder(z_dim, convolution_channel_size_2 * data_sequence_size)
 
     def forward(self, x):
         z_mean, z_logvar = self.encoder(x)
