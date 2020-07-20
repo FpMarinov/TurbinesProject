@@ -22,8 +22,8 @@ drop_infinity_from_loss_record_calc = False
 
 data_sequence_size = 5
 batch_size = 5
-convolution_channel_size_1 = 64
-convolution_channel_size_2 = 32
+convolution_channel_size_1 = 32
+convolution_channel_size_2 = 16
 fully_connected_unit_size = 400
 latent_dimensions = 20
 convolution_kernel = 3
@@ -219,33 +219,17 @@ if __name__ == "__main__":
 
         # visualise average training and validation losses per epoch
         if visualise_training_and_validation_loss:
-            # plot losses focused on training losses
+            # plot losses
             plt.figure()
             epochs_arr = np.linspace(0, epochs - 1, epochs)
-            plt.plot(epochs_arr, average_training_losses, label="avg_train_loss", color="blue")
-            plt.plot(epochs_arr, average_validation_losses, label="avg_val_loss", color="red")
+            plt.plot(epochs_arr, average_training_losses, label="Avg Train Loss", color="blue")
+            plt.plot(epochs_arr, average_validation_losses, label="Avg Val Loss", color="red")
 
             # set axis labels and legend
-            plt.ylabel("avg_loss")
-            plt.xlabel("epoch")
+            plt.ylabel("Avg Loss")
+            plt.xlabel("Epoch")
             plt.legend(loc='best')
-            plt.title("losses_train_focus")
-
-            # focus plot on train losses
-            avg_train_loss_max = max(average_training_losses)
-            unit = avg_train_loss_max / 21
-            plt.ylim(top=avg_train_loss_max + unit, bottom=-unit)
-
-            # plot all losses
-            plt.figure()
-            plt.plot(epochs_arr, average_training_losses, label="avg_train_loss", color="blue")
-            plt.plot(epochs_arr, average_validation_losses, label="avg_val_loss", color="red")
-
-            # set axis labels and legend
-            plt.ylabel("avg_loss")
-            plt.xlabel("epoch")
-            plt.legend(loc='best')
-            plt.title("losses_no_focus")
+            plt.title("Training Loss")
 
     # format all data
     data_tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
