@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "thrust"
+data_type = "torque"
 mode = "train"
 epochs = 10
 visualise_scatter = True
@@ -29,7 +29,6 @@ convolution_channel_size_4 = 4
 fully_connected_unit_size = 400
 latent_dimensions = 1
 convolution_kernel = 3
-pooling_kernel = 3
 
 weights_path = "./vae_net_%s.pth" % data_type
 
