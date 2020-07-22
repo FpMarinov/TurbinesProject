@@ -6,7 +6,8 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import Adam
 from trainer import Trainer
-from DataReader import get_lists
+from ReaderPlotter import read_data_lists
+from ReaderPlotter import plot_losses
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
@@ -170,7 +171,7 @@ def loss_fn(output, mean, logvar, target):
 
 if __name__ == "__main__":
     # get data
-    velocity_list, thrust_list, torque_list = get_lists()
+    velocity_list, thrust_list, torque_list = read_data_lists()
     if data_type == "velocity":
         data = velocity_list
         data[:] = [x * 10 for x in data]
@@ -234,17 +235,7 @@ if __name__ == "__main__":
 
         # visualise average training and validation losses per epoch
         if visualise_training_and_validation_loss:
-            # plot losses
-            plt.figure()
-            epochs_arr = np.linspace(0, epochs - 1, epochs)
-            plt.plot(epochs_arr, average_training_losses, label="Avg Train Loss", color="blue")
-            plt.plot(epochs_arr, average_validation_losses, label="Avg Val Loss", color="red")
-
-            # set axis labels and legend
-            plt.ylabel("Avg Loss")
-            plt.xlabel("Epoch")
-            plt.legend(loc='best')
-            plt.title("Training Loss")
+            plot_losses(average_training_losses, average_validation_losses)
 
     # format all data
     data_tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
