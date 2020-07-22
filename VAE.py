@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
-data_type = "torque"
+data_type = "velocity"
 mode = "train"
 epochs = 10
 visualise_scatter = True
@@ -117,7 +117,7 @@ class Decoder(nn.Module):
         x = F.relu(x)
         # print("-3:", x.size())
 
-        x = x.view(z_input.size()[0], convolution_channel_size_4, 5)
+        x = x.view(z_input.size()[0], convolution_channel_size_4, data_sequence_size)
         # print("-4:", x.size())
 
         x = self.conv1(x)
