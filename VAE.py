@@ -10,7 +10,6 @@ from ReaderPlotter import read_data_lists
 from ReaderPlotter import losses_plot
 from ReaderPlotter import reconstruction_scatter_plot
 import matplotlib.pyplot as plt
-import numpy as np
 import csv
 
 data_type = "velocity"
