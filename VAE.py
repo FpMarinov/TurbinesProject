@@ -12,8 +12,8 @@ from ReaderPlotter import reconstruction_scatter_plot
 import matplotlib.pyplot as plt
 import csv
 
-data_type = "velocity"
-mode = "test"
+data_type = "thrust"
+mode = "train"
 epochs = 10
 visualise_scatter = True
 drop_outliers = False
@@ -118,7 +118,7 @@ class Decoder(nn.Module):
         x = F.relu(x)
         # print("-3:", x.size())
 
-        x = x.view(batch_size, convolution_channel_size_4, data_sequence_size)
+        x = x.view(z_input.size()[0], convolution_channel_size_4, data_sequence_size)
         # print("-4:", x.size())
 
         x = self.conv1(x)
