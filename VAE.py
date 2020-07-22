@@ -174,10 +174,10 @@ if __name__ == "__main__":
     velocity_list, thrust_list, torque_list = read_data_lists()
     if data_type == "velocity":
         data = velocity_list
-        data[:] = [x * 10 for x in data]
+        data = [x * 10 for x in data]
     elif data_type == "thrust":
         data = thrust_list
-        data[:] = [x / 10 for x in data]
+        data = [x / 10 for x in data]
     elif data_type == "torque":
         data = torque_list
     else:
