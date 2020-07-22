@@ -16,7 +16,7 @@ data_type = "thrust"
 mode = "train"
 epochs = 10
 visualise_scatter = True
-drop_outliers = False
+drop_scatter_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 drop_infinity_from_loss_record_calc = False
@@ -254,6 +254,6 @@ if __name__ == "__main__":
 
     # visualise reconstruction if visualisation is on
     if visualise_scatter:
-        reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type, drop_outliers)
+        reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type, drop_scatter_outliers)
 
     plt.show()
