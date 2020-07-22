@@ -65,26 +65,26 @@ class Encoder(nn.Module):
 
         x = self.conv2(x)
         x = F.relu(x)
-        # print("2.5:", x.size())
+        # print("3:", x.size())
 
         x = self.conv3(x)
         x = F.relu(x)
-        # print("2.75:", x.size())
+        # print("4:", x.size())
 
         x = self.conv4(x)
         x = F.relu(x)
-        # print("3:", x.size())
+        # print("5:", x.size())
 
         x = torch.flatten(x, 1)
-        # print("4:", x.size())
+        # print("6:", x.size())
 
         x = self.fc1(x)
         x = F.relu(x)
-        # print("5:", x.size())
+        # print("7:", x.size())
 
         z_loc = self.z_mu(x)
         z_logvar = self.z_sigma(x)
-        # print("6:", z_loc.size())
+        # print("8:", z_loc.size())
 
         return z_loc, z_logvar
 
@@ -126,15 +126,15 @@ class Decoder(nn.Module):
 
         x = self.conv2(x)
         x = F.relu(x)
-        # print("-5.5:", x.size())
+        # print("-6:", x.size())
 
         x = self.conv3(x)
         x = F.relu(x)
-        # print("-5.75:", x.size())
+        # print("-7:", x.size())
 
         x = self.conv4(x)
         output = F.relu(x)
-        # print("-6:", x.size())
+        # print("-8:", x.size())
 
         return output
 
