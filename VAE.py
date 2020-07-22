@@ -217,7 +217,8 @@ if __name__ == "__main__":
                                 batch_size=batch_size, shuffle=True)
 
         # do training
-        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq, drop_infinity_from_loss_record_calc)
+        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
+                          drop_infinity_from_loss_record_calc)
         average_training_losses, average_validation_losses = trainer.train_model()
 
         # save weights
