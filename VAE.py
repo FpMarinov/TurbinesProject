@@ -8,12 +8,13 @@ from torch.optim import Adam
 from trainer import Trainer
 from ReaderPlotter import read_data_lists
 from ReaderPlotter import plot_losses
+from ReaderPlotter import reconstruction_scatter_plot
 import matplotlib.pyplot as plt
 import numpy as np
 import csv
 
 data_type = "velocity"
-mode = "train"
+mode = "test"
 epochs = 10
 visualise_scatter = True
 drop_outliers = False
@@ -254,46 +255,6 @@ if __name__ == "__main__":
 
     # visualise reconstruction if visualisation is on
     if visualise_scatter:
-
-        # get lists of original data and reconstructions
-        reconstructions = []
-        originals = []
-        for inputs_targets in val_loader:
-
-            inputs_targets = inputs_targets[0]
-
-            outputs = vae(inputs_targets)
-
-            outputs = outputs[0].detach().view(-1).to(torch.device('cpu'))
-            outputs = outputs.numpy()
-            reconstructions.extend(outputs)
-
-            inputs_targets = inputs_targets.view(-1).to(torch.device('cpu'))
-            inputs_targets = inputs_targets.numpy()
-            originals.extend(inputs_targets)
-
-        # make scatter plot of originals and reconstructions
-        plt.figure()
-        plt.scatter(originals, reconstructions)
-
-        # make plot of y = x if turned on
-        min_data = min(data)
-        max_data = max(data)
-        if show_y_equals_x:
-            straight_line_data = np.linspace(min(data), max(data))
-            plt.plot(straight_line_data, straight_line_data, color="black")
-
-        # set axis labels and title
-        plt.ylabel("reconstruction")
-        plt.xlabel("original")
-        plt.title(data_type)
-
-        # set up drop of outliers in visualisation if turned on
-        unit = max_data / 21
-        if drop_outliers:
-            y_upper_limit = max_data + unit
-        else:
-            y_upper_limit = None
-        plt.ylim(top=y_upper_limit, bottom=-unit)
+        reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type, drop_outliers)
 
     plt.show()
