@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import Adam
 from trainer import Trainer
 from ReaderPlotter import read_data_lists
-from ReaderPlotter import plot_losses
+from ReaderPlotter import losses_plot
 from ReaderPlotter import reconstruction_scatter_plot
 import matplotlib.pyplot as plt
 import numpy as np
@@ -237,7 +237,7 @@ if __name__ == "__main__":
 
         # visualise average training and validation losses per epoch
         if visualise_training_and_validation_loss:
-            plot_losses(average_training_losses, average_validation_losses)
+            losses_plot(average_training_losses, average_validation_losses)
 
     # format all data
     data_tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)

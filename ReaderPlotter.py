@@ -32,9 +32,9 @@ def read_data_lists():
 def read_and_plot_data():
     velocity_list, thrust_list, torque_list = read_data_lists()
 
-    plot_data_list(velocity_list, 'Velocity_x')
-    plot_data_list(thrust_list, 'Thrust')
-    plot_data_list(torque_list, 'Torque')
+    data_list_plot(velocity_list, 'Velocity_x')
+    data_list_plot(thrust_list, 'Thrust')
+    data_list_plot(torque_list, 'Torque')
 
     plt.show()
 
@@ -65,7 +65,7 @@ def read_and_plot_losses():
         validation_loss_list = [float(i) for i in validation_loss_list]
 
         # plot losses
-        plot_losses(train_loss_list, validation_loss_list)
+        losses_plot(train_loss_list, validation_loss_list)
         plt.show()
 
 
@@ -111,7 +111,7 @@ def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_typ
     plt.ylim(top=y_upper_limit, bottom=-unit)
 
 
-def plot_data_list(list, name, start_index=0, end_index=None, data_fraction=None):
+def data_list_plot(list, name, start_index=0, end_index=None, data_fraction=None):
     if end_index is None:
         end_index = len(list)
 
@@ -126,7 +126,7 @@ def plot_data_list(list, name, start_index=0, end_index=None, data_fraction=None
     plt.ylabel(name)
 
 
-def plot_losses(average_training_losses, average_validation_losses):
+def losses_plot(average_training_losses, average_validation_losses):
     epochs = len(average_training_losses)
 
     # plot losses
