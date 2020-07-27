@@ -39,7 +39,7 @@ def read_and_plot_data():
     plt.show()
 
 
-def read_and_plot_losses():
+def read_losses():
     train_loss_list = []
     validation_loss_list = []
 
@@ -64,9 +64,17 @@ def read_and_plot_losses():
         train_loss_list = [float(i) for i in train_loss_list]
         validation_loss_list = [float(i) for i in validation_loss_list]
 
-        # plot losses
-        losses_plot(train_loss_list, validation_loss_list)
-        plt.show()
+        # return losses
+        return train_loss_list, validation_loss_list
+
+
+def read_and_plot_losses(plot_50_epoch_skip=False):
+    # read losses
+    train_loss_list, validation_loss_list = read_losses()
+
+    # plot losses
+    losses_plot(train_loss_list, validation_loss_list, plot_50_epoch_skip)
+    plt.show()
 
 
 def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type, drop_outliers):
@@ -126,7 +134,7 @@ def data_list_plot(list, name, start_index=0, end_index=None, data_fraction=None
     plt.ylabel(name)
 
 
-def losses_plot(average_training_losses, average_validation_losses):
+def losses_plot(average_training_losses, average_validation_losses, plot_50_epoch_skip=False):
     epochs = len(average_training_losses)
 
     # plot losses
@@ -153,6 +161,19 @@ def losses_plot(average_training_losses, average_validation_losses):
     plt.legend(loc='best')
     plt.title("Training Loss")
 
+    if plot_50_epoch_skip:
+        # plot losses skipping first 50 epochs
+        plt.figure()
+        epochs_arr = np.linspace(50, epochs - 1, epochs - 50)
+        plt.plot(epochs_arr, average_training_losses[50:], label="Avg Train Loss", color="blue")
+        plt.plot(epochs_arr, average_validation_losses[50:], label="Avg Val Loss", color="red")
+
+        # set axis labels and legend
+        plt.ylabel("Avg Loss")
+        plt.xlabel("Epoch")
+        plt.legend(loc='best')
+        plt.title("Training Loss")
+
 
 if __name__ == "__main__":
-    read_and_plot_losses()
+    read_and_plot_losses(True)

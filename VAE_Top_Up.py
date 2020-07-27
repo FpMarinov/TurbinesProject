@@ -9,18 +9,18 @@ from trainer import Trainer
 from ReaderPlotter import read_data_lists
 from ReaderPlotter import losses_plot
 from ReaderPlotter import reconstruction_scatter_plot
+import VAE
 import matplotlib.pyplot as plt
 import csv
 
 data_type = "thrust"
 mode = "train"
-epochs = 100
+extra_epochs = 100
 visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 drop_infinity_from_loss_record_calc = False
-plot_loss_50_epoch_skip = True
 
 data_sequence_size = 5
 batch_size = 5
@@ -38,136 +38,6 @@ seed = 1
 lr = 1e-4
 validation_data_fraction = 0.2
 print_freq = 10
-
-
-class Encoder(nn.Module):
-
-    def __init__(self, z_dim, fc1_size):
-        super(Encoder, self).__init__()
-
-        # convolution
-        self.conv1 = nn.Conv1d(1, convolution_channel_size_1, convolution_kernel, 1, 1)
-        self.conv2 = nn.Conv1d(convolution_channel_size_1, convolution_channel_size_2, convolution_kernel, 1, 1)
-        self.conv3 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_3, convolution_kernel, 1, 1)
-        self.conv4 = nn.Conv1d(convolution_channel_size_3, convolution_channel_size_4, convolution_kernel, 1, 1)
-
-        # fully connected transformation
-        self.fc1 = nn.Linear(fc1_size, fully_connected_unit_size)
-
-        # latent space transformation
-        self.z_mu = nn.Linear(fully_connected_unit_size, z_dim)
-        self.z_sigma = nn.Linear(fully_connected_unit_size, z_dim)
-
-    def forward(self, x):
-        # print("1:", x.size())
-
-        x = self.conv1(x)
-        x = F.relu(x)
-        # print("2:", x.size())
-
-        x = self.conv2(x)
-        x = F.relu(x)
-        # print("3:", x.size())
-
-        x = self.conv3(x)
-        x = F.relu(x)
-        # print("4:", x.size())
-
-        x = self.conv4(x)
-        x = F.relu(x)
-        # print("5:", x.size())
-
-        x = torch.flatten(x, 1)
-        # print("6:", x.size())
-
-        x = self.fc1(x)
-        x = F.relu(x)
-        # print("7:", x.size())
-
-        z_loc = self.z_mu(x)
-        z_logvar = self.z_sigma(x)
-        # print("8:", z_loc.size())
-
-        return z_loc, z_logvar
-
-
-class Decoder(nn.Module):
-
-    def __init__(self, z_dim, output_size):
-        super(Decoder, self).__init__()
-
-        # latent space transformation
-        self.fc_lat = nn.Linear(z_dim, fully_connected_unit_size)
-
-        # fully connected transformation
-        self.fc1 = nn.Linear(fully_connected_unit_size, output_size)
-
-        # convolution
-        self.conv1 = nn.Conv1d(convolution_channel_size_4, convolution_channel_size_3, convolution_kernel, 1, 1)
-        self.conv2 = nn.Conv1d(convolution_channel_size_3, convolution_channel_size_2, convolution_kernel, 1, 1)
-        self.conv3 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_1, convolution_kernel, 1, 1)
-        self.conv4 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
-
-    def forward(self, z_input):
-        # print("-1:", z_input.size())
-
-        x = self.fc_lat(z_input)
-        x = F.relu(x)
-        # print("-2:", x.size())
-
-        x = self.fc1(x)
-        x = F.relu(x)
-        # print("-3:", x.size())
-
-        x = x.view(z_input.size()[0], convolution_channel_size_4, data_sequence_size)
-        # print("-4:", x.size())
-
-        x = self.conv1(x)
-        x = F.relu(x)
-        # print("-5:", x.size())
-
-        x = self.conv2(x)
-        x = F.relu(x)
-        # print("-6:", x.size())
-
-        x = self.conv3(x)
-        x = F.relu(x)
-        # print("-7:", x.size())
-
-        x = self.conv4(x)
-        output = F.relu(x)
-        # print("-8:", x.size())
-
-        return output
-
-
-class VAE(nn.Module):
-
-    def __init__(self, z_dim):
-        super(VAE, self).__init__()
-        self.encoder = Encoder(z_dim, convolution_channel_size_4 * data_sequence_size)
-        self.decoder = Decoder(z_dim, convolution_channel_size_4 * data_sequence_size)
-
-    def forward(self, x):
-        z_mean, z_logvar = self.encoder(x)
-        std = torch.exp(0.5 * z_logvar)
-        eps = torch.randn_like(std)
-        output = self.decoder(z_mean + eps * std)
-
-        return output, z_mean, z_logvar
-
-    def reconstruct_data(self, sample):
-        return self.decoder(sample)
-
-
-def loss_fn(output, mean, logvar, target):
-    criterion = nn.MSELoss()
-    mse = criterion(output, target)
-
-    kl = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
-    mkl = kl / (batch_size * data_sequence_size)
-
-    return mse + mkl
 
 
 if __name__ == "__main__":
@@ -218,7 +88,7 @@ if __name__ == "__main__":
                                 batch_size=batch_size, shuffle=True)
 
         # do training and get losses
-        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
+        trainer = Trainer(vae, extra_epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
                           drop_infinity_from_loss_record_calc)
         average_training_losses, average_validation_losses = trainer.train_model()
 
@@ -237,7 +107,7 @@ if __name__ == "__main__":
 
         # visualise average training and validation losses per epoch
         if visualise_training_and_validation_loss:
-            losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
+            losses_plot(average_training_losses, average_validation_losses)
 
     # format all data
     data_tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
