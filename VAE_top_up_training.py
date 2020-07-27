@@ -3,18 +3,16 @@ import sys
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import Adam
+import matplotlib.pyplot as plt
 from trainer import Trainer
-from ReaderPlotter import read_data_lists
-from ReaderPlotter import losses_plot
-from ReaderPlotter import reconstruction_scatter_plot
-from ReaderPlotter import read_losses
+from ReaderWriter import read_data_lists, read_losses, write_losses
+from Plotter import losses_plot, reconstruction_scatter_plot
 from VAE import loss_fn
 from VAE import VAE
-import matplotlib.pyplot as plt
-import csv
 
-data_type = "velocity"
-extra_epochs = 100
+
+data_type = "torque"
+extra_epochs = 13
 visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
@@ -106,14 +104,7 @@ if __name__ == "__main__":
     torch.save(vae.state_dict(), weights_path)
 
     # record average training and validation losses per epoch
-    with open('loss_record.csv', 'w') as csv_file:
-        csv_writer = csv.writer(csv_file, delimiter='\t')
-        headers = ["avg_train_loss", "avg_val_loss"]
-        csv_writer.writerow(headers)
-
-        for avg_train_loss, avg_val_loss in zip(average_training_losses, average_validation_losses):
-            row = [avg_train_loss, avg_val_loss]
-            csv_writer.writerow(row)
+    write_losses(average_training_losses, average_validation_losses)
 
     # visualise average training and validation losses per epoch
     if visualise_training_and_validation_loss:
