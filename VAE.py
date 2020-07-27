@@ -197,10 +197,7 @@ def get_data():
     return data
 
 
-if __name__ == "__main__":
-    # get data
-    data = get_data()
-
+def setup(mode="train"):
     # set seed
     torch.manual_seed(seed)
 
@@ -211,6 +208,22 @@ if __name__ == "__main__":
     # choose device(cpu or gpu)
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     vae.to(device)
+
+    if mode == "train":
+        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
+                          drop_infinity_from_loss_record_calc)
+    else:
+        trainer = None
+
+    return device, vae, trainer
+
+
+if __name__ == "__main__":
+    # get data
+    data = get_data()
+
+    # setup
+    device, vae, trainer = setup(mode)
 
     # split data into training and validation data
     data_train, data_val = train_test_split(data, test_size=validation_data_fraction,
@@ -223,8 +236,6 @@ if __name__ == "__main__":
         val_loader = data_loader(data_val, device)
 
         # do training and get losses
-        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
-                          drop_infinity_from_loss_record_calc)
         average_training_losses, average_validation_losses = trainer.train_model()
 
         # save weights

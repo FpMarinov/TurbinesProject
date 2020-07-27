@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from trainer import Trainer
 from ReaderWriter import read_data_lists, read_losses, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
-from VAE import loss_fn, data_loader, get_data, VAE
+from VAE import loss_fn, data_loader, get_data, setup, VAE
 
 data_type = "torque"
 extra_epochs = 13
@@ -39,16 +39,8 @@ if __name__ == "__main__":
     # get data
     data = get_data()
 
-    # set seed
-    torch.manual_seed(seed)
-
-    # setup neural network and optimizer
-    vae = VAE(latent_dimensions)
-    optimizer = Adam(vae.parameters(), lr=lr)
-
-    # choose device(cpu or gpu)
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    vae.to(device)
+    # setup
+    device, vae, trainer = setup()
 
     # split data into training and validation data
     data_train, data_val = train_test_split(data, test_size=validation_data_fraction,
@@ -67,8 +59,6 @@ if __name__ == "__main__":
     old_average_training_losses, old_average_validation_losses = read_losses()
 
     # do training and get new losses
-    trainer = Trainer(vae, extra_epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
-                      drop_infinity_from_loss_record_calc)
     new_average_training_losses, new_average_validation_losses = trainer.train_model()
 
     # concatenate old and new loss lists
