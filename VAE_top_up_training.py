@@ -8,7 +8,8 @@ from ReaderPlotter import read_data_lists
 from ReaderPlotter import losses_plot
 from ReaderPlotter import reconstruction_scatter_plot
 from ReaderPlotter import read_losses
-import VAE
+from VAE import loss_fn
+from VAE import VAE
 import matplotlib.pyplot as plt
 import csv
 
@@ -93,7 +94,7 @@ if __name__ == "__main__":
     old_average_training_losses, old_average_validation_losses = read_losses()
 
     # do training and get new losses
-    trainer = Trainer(vae, extra_epochs, train_loader, val_loader, device, VAE.loss_fn, optimizer, print_freq,
+    trainer = Trainer(vae, extra_epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
                       drop_infinity_from_loss_record_calc)
     new_average_training_losses, new_average_validation_losses = trainer.train_model()
 
