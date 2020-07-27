@@ -169,6 +169,18 @@ def loss_fn(output, mean, logvar, target):
     return mse + mkl
 
 
+def load_data(data, device):
+    # format data
+    tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
+    tensor = tensor.to(device)
+    dataset = TensorDataset(tensor)
+
+    # load data
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    return loader
+
+
 if __name__ == "__main__":
     # get data
     velocity_list, thrust_list, torque_list = read_data_lists()
@@ -198,23 +210,11 @@ if __name__ == "__main__":
     data_train, data_val = train_test_split(data, test_size=validation_data_fraction,
                                             train_size=1-validation_data_fraction, shuffle=False)
 
-    # format training data
-    tensor_train = torch.FloatTensor(data_train).view(-1, 1, data_sequence_size)
-    tensor_train = tensor_train.to(device)
-    train_dataset = TensorDataset(tensor_train)
-
-    # format validation data
-    tensor_val = torch.FloatTensor(data_val).view(-1, 1, data_sequence_size)
-    tensor_val = tensor_val.to(device)
-    val_dataset = TensorDataset(tensor_val)
-
     # train model if training is on
     if mode == "train":
         # load training and validation data
-        train_loader = DataLoader(train_dataset,
-                                  batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset,
-                                batch_size=batch_size, shuffle=True)
+        train_loader = load_data(data_train, device)
+        val_loader = load_data(data_val, device)
 
         # do training and get losses
         trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
@@ -231,14 +231,8 @@ if __name__ == "__main__":
         if visualise_training_and_validation_loss:
             losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
-    # format all data
-    data_tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
-    data_tensor = data_tensor.to(device)
-    dataset = TensorDataset(data_tensor)
-
     # load all data
-    val_loader = DataLoader(dataset,
-                            batch_size=batch_size, shuffle=True)
+    val_loader = load_data(data, device)
 
     # load model weights and activate evaluation if training is off
     if mode != "train":
