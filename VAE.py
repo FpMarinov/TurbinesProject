@@ -11,15 +11,16 @@ from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
 
-data_type = "thrust"
-epochs = 100
 mode = "train"
+data_type = "thrust"
+epochs = 2
 visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 drop_infinity_from_loss_record_calc = False
 plot_loss_50_epoch_skip = True
+weights_path = "./vae_net_%s.pth" % data_type
 
 data_sequence_size = 5
 batch_size = 5
@@ -30,8 +31,6 @@ convolution_channel_size_4 = 4
 fully_connected_unit_size = 400
 latent_dimensions = 1
 convolution_kernel = 3
-
-weights_path = "./vae_net_%s.pth" % data_type
 
 seed = 1
 lr = 1e-4
@@ -181,7 +180,7 @@ def data_loader(data, device):
     return loader
 
 
-def get_data():
+def get_data(data_type):
     velocity_list, thrust_list, torque_list = read_data_lists()
     if data_type == "velocity":
         data = velocity_list
@@ -197,7 +196,7 @@ def get_data():
     return data
 
 
-def setup(mode="train"):
+def setup(epochs, mode="train"):
     # set seed
     torch.manual_seed(seed)
 
@@ -210,6 +209,13 @@ def setup(mode="train"):
     vae.to(device)
 
     if mode == "train":
+        # split data into training and validation data
+        data_train, data_val = train_test_split(data, test_size=validation_data_fraction,
+                                                train_size=1 - validation_data_fraction, shuffle=False)
+        # load training and validation data
+        train_loader = data_loader(data_train, device)
+        val_loader = data_loader(data_val, device)
+
         trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
                           drop_infinity_from_loss_record_calc)
     else:
@@ -220,21 +226,13 @@ def setup(mode="train"):
 
 if __name__ == "__main__":
     # get data
-    data = get_data()
+    data = get_data(data_type)
 
     # setup
-    device, vae, trainer = setup(mode)
-
-    # split data into training and validation data
-    data_train, data_val = train_test_split(data, test_size=validation_data_fraction,
-                                            train_size=1-validation_data_fraction, shuffle=False)
+    device, vae, trainer = setup(epochs, mode)
 
     # train model if training is on
     if mode == "train":
-        # load training and validation data
-        train_loader = data_loader(data_train, device)
-        val_loader = data_loader(data_val, device)
-
         # do training and get losses
         average_training_losses, average_validation_losses = trainer.train_model()
 
