@@ -1,13 +1,9 @@
 from sklearn.model_selection import train_test_split
-import sys
 import torch
-from torch.utils.data import DataLoader, TensorDataset
-from torch.optim import Adam
 import matplotlib.pyplot as plt
-from trainer import Trainer
-from ReaderWriter import read_data_lists, read_losses, write_losses
+from ReaderWriter import read_losses, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
-from VAE import loss_fn, data_loader, get_data, setup, VAE
+from VAE import data_loader, get_data, setup
 
 data_type = "torque"
 extra_epochs = 13
