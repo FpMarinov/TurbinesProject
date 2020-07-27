@@ -5,6 +5,7 @@ from ReaderWriter import read_losses, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 from VAE import data_loader, get_data, setup
 
+
 data_type = "torque"
 extra_epochs = 13
 visualise_scatter = True
