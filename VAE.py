@@ -169,7 +169,7 @@ def loss_fn(output, mean, logvar, target):
     return mse + mkl
 
 
-def load_data(data, device):
+def data_loader(data, device):
     # format data
     tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
     tensor = tensor.to(device)
@@ -181,8 +181,7 @@ def load_data(data, device):
     return loader
 
 
-if __name__ == "__main__":
-    # get data
+def get_data():
     velocity_list, thrust_list, torque_list = read_data_lists()
     if data_type == "velocity":
         data = velocity_list
@@ -194,6 +193,13 @@ if __name__ == "__main__":
         data = torque_list
     else:
         sys.exit("Incorrect data_type.")
+
+    return data
+
+
+if __name__ == "__main__":
+    # get data
+    data = get_data()
 
     # set seed
     torch.manual_seed(seed)
@@ -213,8 +219,8 @@ if __name__ == "__main__":
     # train model if training is on
     if mode == "train":
         # load training and validation data
-        train_loader = load_data(data_train, device)
-        val_loader = load_data(data_val, device)
+        train_loader = data_loader(data_train, device)
+        val_loader = data_loader(data_val, device)
 
         # do training and get losses
         trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
@@ -232,7 +238,7 @@ if __name__ == "__main__":
             losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
     # load all data
-    val_loader = load_data(data, device)
+    val_loader = data_loader(data, device)
 
     # load model weights and activate evaluation if training is off
     if mode != "train":

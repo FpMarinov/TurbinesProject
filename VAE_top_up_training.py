@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from trainer import Trainer
 from ReaderWriter import read_data_lists, read_losses, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
-from VAE import loss_fn, load_data, VAE
+from VAE import loss_fn, data_loader, get_data, VAE
 
 data_type = "torque"
 extra_epochs = 13
@@ -37,17 +37,7 @@ print_freq = 10
 
 if __name__ == "__main__":
     # get data
-    velocity_list, thrust_list, torque_list = read_data_lists()
-    if data_type == "velocity":
-        data = velocity_list
-        data = [x * 10 for x in data]
-    elif data_type == "thrust":
-        data = thrust_list
-        data = [x / 10 for x in data]
-    elif data_type == "torque":
-        data = torque_list
-    else:
-        sys.exit("Incorrect data_type.")
+    data = get_data()
 
     # set seed
     torch.manual_seed(seed)
@@ -67,8 +57,8 @@ if __name__ == "__main__":
     # train model
 
     # load training and validation data
-    train_loader = load_data(data_train, device)
-    val_loader = load_data(data_val, device)
+    train_loader = data_loader(data_train, device)
+    val_loader = data_loader(data_val, device)
 
     # load model weights
     vae.load_state_dict(torch.load(weights_path))
@@ -96,7 +86,7 @@ if __name__ == "__main__":
         losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
     # load all data
-    val_loader = load_data(data, device)
+    val_loader = data_loader(data, device)
 
     # visualise reconstruction if visualisation is on
     if visualise_scatter:
