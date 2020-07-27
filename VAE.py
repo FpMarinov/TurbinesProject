@@ -12,8 +12,8 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 
 
 data_type = "thrust"
-mode = "train"
 epochs = 100
+mode = "train"
 visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
