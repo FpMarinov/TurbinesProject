@@ -9,18 +9,19 @@ from trainer import Trainer
 from ReaderPlotter import read_data_lists
 from ReaderPlotter import losses_plot
 from ReaderPlotter import reconstruction_scatter_plot
+from ReaderPlotter import read_losses
 import VAE
 import matplotlib.pyplot as plt
 import csv
 
-data_type = "thrust"
-mode = "train"
+data_type = "velocity"
 extra_epochs = 100
 visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 drop_infinity_from_loss_record_calc = False
+plot_loss_50_epoch_skip = True
 
 data_sequence_size = 5
 batch_size = 5
@@ -79,35 +80,45 @@ if __name__ == "__main__":
     tensor_val = tensor_val.to(device)
     val_dataset = TensorDataset(tensor_val)
 
-    # train model if training is on
-    if mode == "train":
-        # load training and validation data
-        train_loader = DataLoader(train_dataset,
-                                  batch_size=batch_size, shuffle=True)
-        val_loader = DataLoader(val_dataset,
-                                batch_size=batch_size, shuffle=True)
+    # train model
 
-        # do training and get losses
-        trainer = Trainer(vae, extra_epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
-                          drop_infinity_from_loss_record_calc)
-        average_training_losses, average_validation_losses = trainer.train_model()
+    # load training and validation data
+    train_loader = DataLoader(train_dataset,
+                              batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset,
+                            batch_size=batch_size, shuffle=True)
 
-        # save weights
-        torch.save(vae.state_dict(), weights_path)
+    # load model weights
+    vae.load_state_dict(torch.load(weights_path))
 
-        # record average training and validation losses per epoch
-        with open('loss_record.csv', 'w') as csv_file:
-            csv_writer = csv.writer(csv_file, delimiter='\t')
-            headers = ["avg_train_loss", "avg_val_loss"]
-            csv_writer.writerow(headers)
+    # read old losses
+    old_average_training_losses, old_average_validation_losses = read_losses()
 
-            for avg_train_loss, avg_val_loss in zip(average_training_losses, average_validation_losses):
-                row = [avg_train_loss, avg_val_loss]
-                csv_writer.writerow(row)
+    # do training and get new losses
+    trainer = Trainer(vae, extra_epochs, train_loader, val_loader, device, VAE.loss_fn, optimizer, print_freq,
+                      drop_infinity_from_loss_record_calc)
+    new_average_training_losses, new_average_validation_losses = trainer.train_model()
 
-        # visualise average training and validation losses per epoch
-        if visualise_training_and_validation_loss:
-            losses_plot(average_training_losses, average_validation_losses)
+    # concatenate old and new loss lists
+    average_training_losses = old_average_training_losses + new_average_training_losses
+    average_validation_losses = old_average_validation_losses + new_average_validation_losses
+
+    # save weights
+    torch.save(vae.state_dict(), weights_path)
+
+    # record average training and validation losses per epoch
+    with open('loss_record.csv', 'w') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter='\t')
+        headers = ["avg_train_loss", "avg_val_loss"]
+        csv_writer.writerow(headers)
+
+        for avg_train_loss, avg_val_loss in zip(average_training_losses, average_validation_losses):
+            row = [avg_train_loss, avg_val_loss]
+            csv_writer.writerow(row)
+
+    # visualise average training and validation losses per epoch
+    if visualise_training_and_validation_loss:
+        losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
     # format all data
     data_tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
@@ -117,11 +128,6 @@ if __name__ == "__main__":
     # load all data
     val_loader = DataLoader(dataset,
                             batch_size=batch_size, shuffle=True)
-
-    # load model weights and activate evaluation if training is off
-    if mode != "train":
-        vae.load_state_dict(torch.load(weights_path))
-        vae.eval()
 
     # visualise reconstruction if visualisation is on
     if visualise_scatter:
