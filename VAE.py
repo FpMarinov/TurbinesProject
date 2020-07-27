@@ -12,14 +12,14 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 
 
 mode = "train"
-data_type = "thrust"
-epochs = 2
+data_type = "velocity"
+epochs = 3
 visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 drop_infinity_from_loss_record_calc = False
-plot_loss_50_epoch_skip = True
+plot_loss_50_epoch_skip = False
 weights_path = "./vae_net_%s.pth" % data_type
 
 data_sequence_size = 5
@@ -196,7 +196,7 @@ def get_data(data_type):
     return data
 
 
-def setup(epochs, mode="train"):
+def setup(epochs, data, mode="train"):
     # set seed
     torch.manual_seed(seed)
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     data = get_data(data_type)
 
     # setup
-    device, vae, trainer = setup(epochs, mode)
+    device, vae, trainer = setup(epochs, data, mode)
 
     # train model if training is on
     if mode == "train":

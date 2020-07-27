@@ -5,13 +5,13 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 from VAE import data_loader, get_data, setup
 
 
-data_type = "thrust"
-extra_epochs = 3
+data_type = "torque"
+extra_epochs = 2
 visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
-plot_loss_50_epoch_skip = True
+plot_loss_50_epoch_skip = False
 weights_path = "./vae_net_%s.pth" % data_type
 
 
@@ -20,7 +20,7 @@ if __name__ == "__main__":
     data = get_data(data_type)
 
     # setup
-    device, vae, trainer = setup(extra_epochs)
+    device, vae, trainer = setup(extra_epochs, data)
 
     # train model
 
