@@ -20,7 +20,7 @@ if __name__ == "__main__":
     data = get_data(data_type)
 
     # setup
-    device, vae, trainer = setup(extra_epochs, data)
+    device, vae, trainer = setup(data=data, epochs=extra_epochs)
 
     # train model
 

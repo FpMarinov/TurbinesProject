@@ -196,7 +196,7 @@ def get_data(data_type):
     return data
 
 
-def setup(epochs, data, mode="train"):
+def setup(data, epochs=0, mode="train"):
     # set seed
     torch.manual_seed(seed)
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
     data = get_data(data_type)
 
     # setup
-    device, vae, trainer = setup(epochs, data, mode)
+    device, vae, trainer = setup(data=data, epochs=epochs, mode=mode)
 
     # train model if training is on
     if mode == "train":
