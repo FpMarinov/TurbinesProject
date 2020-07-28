@@ -12,14 +12,14 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 
 
 mode = "train"
-data_type = "velocity"
-epochs = 3
+data_type = "thrust"
+epochs = 200
 visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 drop_infinity_from_loss_record_calc = False
-plot_loss_50_epoch_skip = False
+plot_loss_50_epoch_skip = True
 weights_path = "./vae_net_%s.pth" % data_type
 
 data_sequence_size = 5

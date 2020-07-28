@@ -11,7 +11,7 @@ visualise_scatter = True
 drop_scatter_outliers = False
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
-plot_loss_50_epoch_skip = False
+plot_loss_50_epoch_skip = True
 weights_path = "./vae_net_%s.pth" % data_type
 
 

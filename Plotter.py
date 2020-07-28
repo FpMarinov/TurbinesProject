@@ -105,7 +105,7 @@ def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_typ
     min_data = min(data)
     max_data = max(data)
     if show_y_equals_x:
-        straight_line_data = np.linspace(min(data), max(data))
+        straight_line_data = np.linspace(min_data, max_data)
         plt.plot(straight_line_data, straight_line_data, color="black")
 
     # set axis labels and title
