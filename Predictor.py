@@ -2,6 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from torch import nn
+from torch.utils.data import DataLoader, TensorDataset
 import torch.nn.functional as F
 from ReaderWriter import read_data_lists
 from VAE import data_loader, VAE
@@ -24,6 +25,20 @@ seed = 1
 lr = 1e-4
 validation_data_fraction = 0.2
 print_freq = 10
+
+
+def data_loader_pr(data, device):
+    # format data
+    tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
+    print("\n", tensor, "\n")
+    print("\n", tensor[0], "\n")
+    tensor = tensor.to(device)
+    dataset = TensorDataset(tensor)
+
+    # load data
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    return loader
 
 
 class Decoder(nn.Module):
@@ -76,45 +91,26 @@ class Decoder(nn.Module):
         return output
 
 
-class Predictor(nn.Module):
-
-    def __init__(self, z_dim):
-        super(Predictor, self).__init__()
-
-        # setup neural network
-        vae_thrust = VAE(latent_dimensions_thrust_torque)
-        vae_torque = VAE(latent_dimensions_thrust_torque)
-
-        # load model weights
-        vae_thrust.load_state_dict(torch.load(weights_path_thrust))
-        vae_torque.load_state_dict(torch.load(weights_path_torque))
-
-        # setup encoders
-        self.encoder_thrust = vae_thrust.encoder
-        self.encoder_torque = vae_torque.encoder
-
-        self.decoder = Decoder(z_dim, convolution_channel_size_4 * data_sequence_size)
-
-    def forward(self, x):
-        z_mean, z_logvar = self.encoder(x)
-        std = torch.exp(0.5 * z_logvar)
-        eps = torch.randn_like(std)
-        output = self.decoder(z_mean + eps * std)
-
-        return output, z_mean, z_logvar
-
-    def reconstruct_data(self, sample):
-        return self.decoder(sample)
-
-
 if __name__ == "__main__":
     # set seed
     torch.manual_seed(seed)
 
+    # setup neural network
+    vae_thrust = VAE(latent_dimensions_thrust_torque)
+    vae_torque = VAE(latent_dimensions_thrust_torque)
+
+    # load model weights
+    vae_thrust.load_state_dict(torch.load(weights_path_thrust))
+    vae_torque.load_state_dict(torch.load(weights_path_torque))
+
+    # get encoders
+    encoder_thrust = vae_thrust.encoder
+    encoder_torque = vae_torque.encoder
+
     # choose device(cpu or gpu)
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    vae_thrust.to(device)
-    vae_torque.to(device)
+    encoder_thrust.to(device)
+    encoder_torque.to(device)
 
     # get data
     velocity_list, thrust_list, torque_list = read_data_lists()
