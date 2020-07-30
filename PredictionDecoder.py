@@ -85,12 +85,12 @@ class PredictionDecoder(nn.Module):
 
 
 def get_data_and_weights():
-    # get data
+    # get all data
     velocity_list, thrust_list, torque_list = read_data_lists()
     velocity_list = [x * 10 for x in velocity_list]
     thrust_list = [x / 10 for x in thrust_list]
 
-    # choose data to be predicted
+    # choose correct data and weights
     if data_to_predict_type == "velocity":
         data_enc1 = thrust_list
         data_enc2 = torque_list
@@ -118,7 +118,7 @@ def get_data_and_weights():
     return data_enc1, data_enc2, data_pred, weights_path_enc1, weights_path_enc2
 
 
-def setup():
+def setup(data_enc1, data_enc2, data_pred, weights_path_enc1, weights_path_enc2):
     # set seed
     torch.manual_seed(seed)
 
@@ -182,7 +182,8 @@ if __name__ == "__main__":
     data_enc1, data_enc2, data_pred, weights_path_enc1, weights_path_enc2 = get_data_and_weights()
 
     # setup
-    device, encoder1, encoder2, decoder, trainer = setup()
+    device, encoder1, encoder2, decoder, trainer = setup(data_enc1, data_enc2, data_pred,
+                                                         weights_path_enc1, weights_path_enc2)
 
     if mode == "train":
         # do training and get losses

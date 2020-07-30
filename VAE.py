@@ -173,8 +173,11 @@ def data_loader(data, device, shuffle=True):
     return loader
 
 
-def get_data(data_type):
+def get_data():
+    # get all data
     velocity_list, thrust_list, torque_list = read_data_lists()
+
+    # choose correct data
     if data_type == "velocity":
         data = velocity_list
         data = [x * 10 for x in data]
@@ -189,7 +192,7 @@ def get_data(data_type):
     return data
 
 
-def setup(data, epochs=0, mode="train"):
+def setup(data):
     # set seed
     torch.manual_seed(seed)
 
@@ -218,10 +221,10 @@ def setup(data, epochs=0, mode="train"):
 
 if __name__ == "__main__":
     # get data
-    data = get_data(data_type)
+    data = get_data()
 
     # setup
-    device, vae, trainer = setup(data=data, epochs=epochs, mode=mode)
+    device, vae, trainer = setup(data)
 
     # train model if training is on
     if mode == "train":
