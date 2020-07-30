@@ -11,7 +11,7 @@ from ReaderWriter import read_data_lists, write_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction
 
 mode = "train"
-epochs = 1
+epochs = 10
 visualise_scatter = True
 show_y_equals_x = True
 visualise_training_and_validation_loss = True

@@ -58,7 +58,6 @@ class PredictionTrainer:
             average_validation_loss = self.eval_model()
             average_validation_losses.append(average_validation_loss)
             print("Epoch {}: Average Validation Loss: {}".format(self.epoch, average_validation_loss))
-            print("\n")
 
             self.epoch += 1
 
