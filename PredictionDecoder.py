@@ -10,6 +10,8 @@ from PredictionTrainer import PredictionTrainer
 from ReaderWriter import read_data_lists, write_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction
 
+
+sampling = False
 mode = "train"
 epochs = 10
 visualise_scatter = True
@@ -37,7 +39,11 @@ class PredictionDecoder(nn.Module):
         super(PredictionDecoder, self).__init__()
 
         # latent space transformation
-        self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
+        if sampling:
+            self.fc_lat = nn.Linear(2 * latent_dimensions, fully_connected_unit_size)
+        else:
+            self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
+
 
         # fully connected transformation
         self.fc1 = nn.Linear(fully_connected_unit_size, convolution_channel_size_4 * data_sequence_size)
@@ -137,7 +143,7 @@ if __name__ == "__main__":
         trainer = PredictionTrainer(encoder_thrust, encoder_torque, decoder, epochs,
                                     train_loader_thrust, train_loader_torque, train_loader_velocity,
                                     val_loader_thrust, val_loader_torque, val_loader_velocity,
-                                    device, optimizer)
+                                    device, optimizer, sampling)
 
         # do training and get losses
         average_training_losses, average_validation_losses = trainer.train_model()

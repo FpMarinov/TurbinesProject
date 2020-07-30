@@ -6,7 +6,7 @@ class PredictionTrainer:
 
     def __init__(self, encoder1, encoder2, decoder, num_epochs, train_loader_enc1, train_loader_enc2, train_loader_pred,
                  val_loader_enc1, val_loader_enc2, val_loader_pred,
-                 device, optimizer):
+                 device, optimizer, sampling):
         self.loss_criterion = nn.MSELoss()
         self.encoder1 = encoder1
         self.encoder2 = encoder2
@@ -20,6 +20,7 @@ class PredictionTrainer:
         self.val_loader_pred = val_loader_pred
         self.device = device
         self.optimizer = optimizer
+        self.sampling = sampling
         self.epoch = 0
 
     def train_model(self):
@@ -37,7 +38,8 @@ class PredictionTrainer:
 
             for inputs1, inputs2, targets in zip(self.train_loader_enc1, self.train_loader_enc2,
                                                  self.train_loader_pred):
-                encoded_inputs_tensor = encode_inputs(inputs1, inputs2, self.encoder1, self.encoder2, self.device)
+                encoded_inputs_tensor = encode_inputs(inputs1, inputs2, self.encoder1, self.encoder2, self.device,
+                                                      self.sampling)
                 targets = targets[0]
 
                 self.optimizer.zero_grad()
@@ -71,7 +73,8 @@ class PredictionTrainer:
         with torch.no_grad():
             for inputs1, inputs2, targets in zip(self.train_loader_enc1, self.train_loader_enc2,
                                                  self.train_loader_pred):
-                encoded_inputs_tensor = encode_inputs(inputs1, inputs2, self.encoder1, self.encoder2, self.device)
+                encoded_inputs_tensor = encode_inputs(inputs1, inputs2, self.encoder1, self.encoder2, self.device,
+                                                      self.sampling)
                 targets = targets[0]
 
                 outputs = self.decoder(encoded_inputs_tensor)
@@ -84,7 +87,7 @@ class PredictionTrainer:
         return average_validation_loss
 
 
-def encode_inputs(inputs1, inputs2, encoder1, encoder2, device):
+def encode_inputs(inputs1, inputs2, encoder1, encoder2, device, sampling):
     inputs1 = inputs1[0]
     inputs2 = inputs2[0]
 
@@ -93,16 +96,34 @@ def encode_inputs(inputs1, inputs2, encoder1, encoder2, device):
 
     encoded_inputs_list = []
 
-    for x0, x1, x2, x3 in zip(z_mean1, z_logvar1,
-                              z_mean2, z_logvar2):
-        x0 = x0.item()
-        x1 = x1.item()
-        x2 = x2.item()
-        x3 = x3.item()
+    if sampling:
+        std1 = torch.exp(0.5 * z_logvar1)
+        eps1 = torch.randn_like(std1)
+        sampled_encoded_input1 = z_mean1 + eps1 * std1
 
-        sequence = [x0, x1, x2, x3]
+        std2 = torch.exp(0.5 * z_logvar2)
+        eps2 = torch.randn_like(std2)
+        sampled_encoded_input2 = z_mean2 + eps2 * std2
 
-        encoded_inputs_list.append(sequence)
+        for x0, x1 in zip(sampled_encoded_input1, sampled_encoded_input2):
+            x0 = x0.item()
+            x1 = x1.item()
+
+            sequence = [x0, x1]
+
+            encoded_inputs_list.append(sequence)
+
+    else:
+        for x0, x1, x2, x3 in zip(z_mean1, z_logvar1,
+                                  z_mean2, z_logvar2):
+            x0 = x0.item()
+            x1 = x1.item()
+            x2 = x2.item()
+            x3 = x3.item()
+
+            sequence = [x0, x1, x2, x3]
+
+            encoded_inputs_list.append(sequence)
 
     encoded_inputs_tensor = torch.tensor(encoded_inputs_list)
     encoded_inputs_tensor = encoded_inputs_tensor.to(device)
