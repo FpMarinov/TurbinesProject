@@ -44,15 +44,6 @@ class PredictionTrainer:
 
                 outputs = self.decoder(encoded_inputs_tensor)
 
-                lista = []
-                ###########
-                # to_print = outputs.detach().view(-1).to(torch.device('cpu'))
-                # to_print = to_print.numpy()
-                to_print = targets
-                ###########
-                lista.extend(to_print)
-                print(lista, "\n")
-
                 loss = self.loss_criterion(outputs, targets)
                 loss.backward()
                 self.optimizer.step()
