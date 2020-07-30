@@ -12,12 +12,10 @@ from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, v
 
 
 data_to_predict_type = "thrust"
-sampling = False
 mode = "train"
 epochs = 10
-show_y_equals_x = True
-visualise_training_and_validation_loss = True
 plot_loss_50_epoch_skip = False
+sampling = False
 
 convolution_channel_size_1 = 16
 convolution_channel_size_2 = 8
@@ -181,8 +179,7 @@ if __name__ == "__main__":
         write_losses(average_training_losses, average_validation_losses)
 
         # visualise average training and validation losses per epoch
-        if visualise_training_and_validation_loss:
-            losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
+        losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
     # load all data
     val_loader_pred = data_loader(data_pred, device, shuffle=False)
@@ -197,6 +194,6 @@ if __name__ == "__main__":
     # visualise reconstruction
     prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_pred,
                                            data_to_predict_type, val_loader_enc1, val_loader_enc2,
-                                           show_y_equals_x, sampling)
+                                           sampling)
 
     plt.show()

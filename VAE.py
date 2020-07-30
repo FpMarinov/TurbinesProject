@@ -14,8 +14,6 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 data_type = "thrust"
 mode = "train"
 epochs = 100
-show_y_equals_x = True
-visualise_training_and_validation_loss = True
 plot_loss_50_epoch_skip = True
 
 data_sequence_size = 5
@@ -238,8 +236,7 @@ if __name__ == "__main__":
         write_losses(average_training_losses, average_validation_losses)
 
         # visualise average training and validation losses per epoch
-        if visualise_training_and_validation_loss:
-            losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
+        losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
     # load all data
     val_loader = data_loader(data, device)
@@ -250,6 +247,6 @@ if __name__ == "__main__":
         vae.eval()
 
     # visualise reconstruction
-    reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type)
+    reconstruction_scatter_plot(vae, data, val_loader, data_type)
 
     plt.show()

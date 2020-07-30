@@ -80,7 +80,7 @@ def losses_plot(average_training_losses, average_validation_losses, plot_50_epoc
         plt.title("Training Loss")
 
 
-def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type):
+def reconstruction_scatter_plot(vae, data, val_loader, data_type):
     # get lists of original data and reconstructions
     reconstructions = []
     originals = []
@@ -97,11 +97,11 @@ def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_typ
         inputs_targets = inputs_targets.numpy()
         originals.extend(inputs_targets)
 
-    reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type, show_y_equals_x)
+    reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type)
 
 
 def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_to_predict, data_to_predict_type,
-                                           val_loader_enc1, val_loader_enc2, show_y_equals_x, sampling):
+                                           val_loader_enc1, val_loader_enc2, sampling):
     # get lists of original data and reconstructions
     reconstructions = []
     originals = data_to_predict
@@ -114,21 +114,19 @@ def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, 
         outputs = outputs.numpy()
         reconstructions.extend(outputs)
 
-    reconstruction_scatter_plot_helper(originals, reconstructions, data_to_predict, data_to_predict_type,
-                                       show_y_equals_x)
+    reconstruction_scatter_plot_helper(originals, reconstructions, data_to_predict, data_to_predict_type)
 
 
-def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type, show_y_equals_x):
+def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type):
     # make scatter plot of originals and reconstructions
     plt.figure()
     plt.scatter(originals, reconstructions)
 
-    # make plot of y = x if turned on
+    # make plot of y = x
     min_data = min(data)
     max_data = max(data)
-    if show_y_equals_x:
-        straight_line_data = np.linspace(min_data, max_data)
-        plt.plot(straight_line_data, straight_line_data, color="black")
+    straight_line_data = np.linspace(min_data, max_data)
+    plt.plot(straight_line_data, straight_line_data, color="black")
 
     # set axis labels and title
     plt.ylabel("reconstruction")
