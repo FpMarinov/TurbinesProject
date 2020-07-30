@@ -109,13 +109,13 @@ def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_typ
 
 
 def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_to_predict, data_to_predict_type,
-                                           val_loader_enc1, val_loader_enc2, val_loader_pred, show_y_equals_x):
+                                           val_loader_enc1, val_loader_enc2, val_loader_pred, show_y_equals_x, sampling):
     # get lists of original data and reconstructions
     reconstructions = []
     originals = data_to_predict
 
     for inputs1, inputs2, targets in zip(val_loader_enc1, val_loader_enc2, val_loader_pred):
-        encoded_inputs_tensor = encode_inputs(inputs1, inputs2, encoder1, encoder2, device)
+        encoded_inputs_tensor = encode_inputs(inputs1, inputs2, encoder1, encoder2, device, sampling)
         targets = targets[0]
 
         outputs = decoder(encoded_inputs_tensor)
@@ -148,4 +148,4 @@ def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_ty
 
 
 if __name__ == "__main__":
-    read_and_plot_losses(True)
+    read_and_plot_losses(False)

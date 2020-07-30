@@ -12,7 +12,7 @@ from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, v
 
 
 sampling = False
-mode = "train"
+mode = "test"
 epochs = 10
 visualise_scatter = True
 show_y_equals_x = True
@@ -113,6 +113,7 @@ if __name__ == "__main__":
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     encoder_thrust.to(device)
     encoder_torque.to(device)
+    decoder.to(device)
 
     # get data
     velocity_list, thrust_list, torque_list = read_data_lists()
@@ -172,6 +173,6 @@ if __name__ == "__main__":
     if visualise_scatter:
         prediction_reconstruction_scatter_plot(encoder_thrust, encoder_torque, decoder, device, velocity_list,
                                                "velocity", val_loader_thrust, val_loader_torque,val_loader_velocity,
-                                               show_y_equals_x)
+                                               show_y_equals_x, sampling)
 
     plt.show()
