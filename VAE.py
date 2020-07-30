@@ -191,7 +191,7 @@ def get_data(data_type):
     elif data_type == "torque":
         data = torque_list
     else:
-        sys.exit("Incorrect data_type.")
+        sys.exit("Incorrect data type.")
 
     return data
 

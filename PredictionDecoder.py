@@ -1,3 +1,5 @@
+import sys
+
 import torch
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
@@ -11,8 +13,9 @@ from ReaderWriter import read_data_lists, write_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction
 
 
+data_to_predict_type = "velocity"
 sampling = False
-mode = "test"
+mode = "train"
 epochs = 10
 visualise_scatter = True
 show_y_equals_x = True
@@ -28,9 +31,9 @@ convolution_kernel = 3
 
 weights_path_thrust = "./vae_net_thrust.pth"
 weights_path_torque = "./vae_net_torque.pth"
+weights_path_velocity = "./vae_net_velocity.pth"
 weights_path_decoder = "./vae_net_prediction_decoder.pth"
 lr = 1e-4
-print_freq = 10
 
 
 class PredictionDecoder(nn.Module):
@@ -88,62 +91,87 @@ class PredictionDecoder(nn.Module):
 
 
 if __name__ == "__main__":
-    # set seed
-    torch.manual_seed(seed)
-
-    # setup neural networks and optimizer
-    vae_thrust = VAE(latent_dimensions)
-    vae_torque = VAE(latent_dimensions)
-    decoder = PredictionDecoder()
-    optimizer = Adam(decoder.parameters(), lr=lr)
-
-    # load model weights
-    vae_thrust.load_state_dict(torch.load(weights_path_thrust))
-    vae_torque.load_state_dict(torch.load(weights_path_torque))
-
-    # get encoders
-    encoder_thrust = vae_thrust.encoder
-    encoder_torque = vae_torque.encoder
-
-    # set encoders to evaluation
-    encoder_thrust.eval()
-    encoder_torque.eval()
-
-    # choose device(cpu or gpu)
-    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    encoder_thrust.to(device)
-    encoder_torque.to(device)
-    decoder.to(device)
-
     # get data
     velocity_list, thrust_list, torque_list = read_data_lists()
     velocity_list = [x * 10 for x in velocity_list]
     thrust_list = [x / 10 for x in thrust_list]
 
+    # choose data to be predicted
+    if data_to_predict_type == "velocity":
+        data_enc1 = thrust_list
+        data_enc2 = torque_list
+        data_pred = velocity_list
+
+        weights_path_enc1 = weights_path_thrust
+        weights_path_enc2 = weights_path_torque
+    elif data_to_predict_type == "torque":
+        data_enc1 = thrust_list
+        data_enc2 = velocity_list
+        data_pred = torque_list
+
+        weights_path_enc1 = weights_path_thrust
+        weights_path_enc2 = weights_path_velocity
+    elif data_to_predict_type == "thrust":
+        data_enc1 = torque_list
+        data_enc2 = velocity_list
+        data_pred = thrust_list
+
+        weights_path_enc1 = weights_path_torque
+        weights_path_enc2 = weights_path_velocity
+    else:
+        sys.exit("Incorrect data type.")
+
+    # set seed
+    torch.manual_seed(seed)
+
+    # setup neural networks and optimizer
+    vae_enc1 = VAE(latent_dimensions)
+    vae_enc2 = VAE(latent_dimensions)
+    decoder = PredictionDecoder()
+    optimizer = Adam(decoder.parameters(), lr=lr)
+
+    # load model weights
+    vae_enc1.load_state_dict(torch.load(weights_path_enc1))
+    vae_enc2.load_state_dict(torch.load(weights_path_enc2))
+
+    # get encoders
+    encoder1 = vae_enc1.encoder
+    encoder2 = vae_enc2.encoder
+
+    # set encoders to evaluation
+    encoder1.eval()
+    encoder2.eval()
+
+    # choose device(cpu or gpu)
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    encoder1.to(device)
+    encoder2.to(device)
+    decoder.to(device)
+
     if mode == "train":
         # split data into training and validation data
-        velocity_train, velocity_val = train_test_split(velocity_list, test_size=validation_data_fraction,
-                                                        train_size=1 - validation_data_fraction, shuffle=False)
+        pred_train, pred_val = train_test_split(data_pred, test_size=validation_data_fraction,
+                                                train_size=1 - validation_data_fraction, shuffle=False)
 
-        torque_train, torque_val = train_test_split(torque_list, test_size=validation_data_fraction,
-                                                    train_size=1 - validation_data_fraction, shuffle=False)
+        enc2_train, enc2_val = train_test_split(data_enc2, test_size=validation_data_fraction,
+                                                train_size=1 - validation_data_fraction, shuffle=False)
 
-        thrust_train, thrust_val = train_test_split(thrust_list, test_size=validation_data_fraction,
-                                                    train_size=1 - validation_data_fraction, shuffle=False)
+        enc1_train, enc1_val = train_test_split(data_enc1, test_size=validation_data_fraction,
+                                                train_size=1 - validation_data_fraction, shuffle=False)
 
         # load training and validation data
-        train_loader_velocity = data_loader(velocity_train, device, shuffle=False)
-        val_loader_velocity = data_loader(velocity_val, device, shuffle=False)
+        train_loader_pred = data_loader(pred_train, device, shuffle=False)
+        val_loader_pred = data_loader(pred_val, device, shuffle=False)
 
-        train_loader_torque = data_loader(torque_train, device, shuffle=False)
-        val_loader_torque = data_loader(torque_val, device, shuffle=False)
+        train_loader_enc2 = data_loader(enc2_train, device, shuffle=False)
+        val_loader_enc2 = data_loader(enc2_val, device, shuffle=False)
 
-        train_loader_thrust = data_loader(thrust_train, device, shuffle=False)
-        val_loader_thrust = data_loader(thrust_val, device, shuffle=False)
+        train_loader_enc1 = data_loader(enc1_train, device, shuffle=False)
+        val_loader_enc1 = data_loader(enc1_val, device, shuffle=False)
 
-        trainer = PredictionTrainer(encoder_thrust, encoder_torque, decoder, epochs,
-                                    train_loader_thrust, train_loader_torque, train_loader_velocity,
-                                    val_loader_thrust, val_loader_torque, val_loader_velocity,
+        trainer = PredictionTrainer(encoder1, encoder2, decoder, epochs,
+                                    train_loader_enc1, train_loader_enc2, train_loader_pred,
+                                    val_loader_enc1, val_loader_enc2, val_loader_pred,
                                     device, optimizer, sampling)
 
         # do training and get losses
@@ -160,9 +188,9 @@ if __name__ == "__main__":
             losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
     # load all data
-    val_loader_velocity = data_loader(velocity_list, device, shuffle=False)
-    val_loader_torque = data_loader(torque_list, device, shuffle=False)
-    val_loader_thrust = data_loader(thrust_list, device, shuffle=False)
+    val_loader_pred = data_loader(data_pred, device, shuffle=False)
+    val_loader_enc2 = data_loader(data_enc2, device, shuffle=False)
+    val_loader_enc1 = data_loader(data_enc1, device, shuffle=False)
 
     # load model weights and activate evaluation if training is off
     if mode != "train":
@@ -171,8 +199,8 @@ if __name__ == "__main__":
 
     # visualise reconstruction if visualisation is on
     if visualise_scatter:
-        prediction_reconstruction_scatter_plot(encoder_thrust, encoder_torque, decoder, device, velocity_list,
-                                               "velocity", val_loader_thrust, val_loader_torque,val_loader_velocity,
+        prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_pred,
+                                               data_to_predict_type, val_loader_enc1, val_loader_enc2, val_loader_pred,
                                                show_y_equals_x, sampling)
 
     plt.show()
