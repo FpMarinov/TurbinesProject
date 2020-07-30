@@ -1,23 +1,20 @@
 import sys
-
 import torch
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from torch import nn
 import torch.nn.functional as F
 from torch.optim import Adam
-
 from Plotter import losses_plot, prediction_reconstruction_scatter_plot
 from PredictionTrainer import PredictionTrainer
 from ReaderWriter import read_data_lists, write_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction
 
 
-data_to_predict_type = "velocity"
+data_to_predict_type = "thrust"
 sampling = False
 mode = "train"
 epochs = 10
-visualise_scatter = True
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 plot_loss_50_epoch_skip = False
@@ -197,10 +194,9 @@ if __name__ == "__main__":
         decoder.load_state_dict(torch.load(weights_path_decoder))
         decoder.eval()
 
-    # visualise reconstruction if visualisation is on
-    if visualise_scatter:
-        prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_pred,
-                                               data_to_predict_type, val_loader_enc1, val_loader_enc2, val_loader_pred,
-                                               show_y_equals_x, sampling)
+    # visualise reconstruction
+    prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_pred,
+                                           data_to_predict_type, val_loader_enc1, val_loader_enc2,
+                                           show_y_equals_x, sampling)
 
     plt.show()

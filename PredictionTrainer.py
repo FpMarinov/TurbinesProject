@@ -67,7 +67,7 @@ class PredictionTrainer:
 
     def eval_model(self):
         self.decoder.eval()
-        # Evaluate model
+
         validation_losses_in_epoch = []
 
         with torch.no_grad():
@@ -78,6 +78,7 @@ class PredictionTrainer:
                 targets = targets[0]
 
                 outputs = self.decoder(encoded_inputs_tensor)
+
                 loss = self.loss_criterion(outputs, targets)
                 loss_item = loss.cpu().detach().item()
                 validation_losses_in_epoch.append(loss_item)

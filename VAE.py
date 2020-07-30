@@ -13,14 +13,10 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 
 mode = "train"
 data_type = "thrust"
-epochs = 200
-visualise_scatter = True
-drop_scatter_outliers = False
+epochs = 10
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
-drop_infinity_from_loss_record_calc = False
 plot_loss_50_epoch_skip = True
-weights_path = "./vae_net_%s.pth" % data_type
 
 data_sequence_size = 5
 batch_size = 5
@@ -32,10 +28,10 @@ fully_connected_unit_size = 400
 latent_dimensions = 1
 convolution_kernel = 3
 
-seed = 1
+weights_path = "./vae_net_%s.pth" % data_type
 lr = 1e-4
+seed = 1
 validation_data_fraction = 0.2
-print_freq = 10
 
 
 class Encoder(nn.Module):
@@ -216,8 +212,7 @@ def setup(data, epochs=0, mode="train"):
         train_loader = data_loader(data_train, device)
         val_loader = data_loader(data_val, device)
 
-        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer, print_freq,
-                          drop_infinity_from_loss_record_calc)
+        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer)
     else:
         trainer = None
 
@@ -254,8 +249,7 @@ if __name__ == "__main__":
         vae.load_state_dict(torch.load(weights_path))
         vae.eval()
 
-    # visualise reconstruction if visualisation is on
-    if visualise_scatter:
-        reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type, drop_scatter_outliers)
+    # visualise reconstruction
+    reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type)
 
     plt.show()

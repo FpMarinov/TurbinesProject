@@ -80,7 +80,7 @@ def losses_plot(average_training_losses, average_validation_losses, plot_50_epoc
         plt.title("Training Loss")
 
 
-def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type, drop_outliers):
+def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_type):
     # get lists of original data and reconstructions
     reconstructions = []
     originals = []
@@ -97,26 +97,17 @@ def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_typ
         inputs_targets = inputs_targets.numpy()
         originals.extend(inputs_targets)
 
-    max_data = reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type, show_y_equals_x)
-
-    # set up drop of outliers in visualisation if turned on
-    unit = max_data / 21
-    if drop_outliers:
-        y_upper_limit = max_data + unit
-    else:
-        y_upper_limit = None
-    plt.ylim(top=y_upper_limit, bottom=-unit)
+    reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type, show_y_equals_x)
 
 
 def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_to_predict, data_to_predict_type,
-                                           val_loader_enc1, val_loader_enc2, val_loader_pred, show_y_equals_x, sampling):
+                                           val_loader_enc1, val_loader_enc2, show_y_equals_x, sampling):
     # get lists of original data and reconstructions
     reconstructions = []
     originals = data_to_predict
 
-    for inputs1, inputs2, targets in zip(val_loader_enc1, val_loader_enc2, val_loader_pred):
+    for inputs1, inputs2 in zip(val_loader_enc1, val_loader_enc2):
         encoded_inputs_tensor = encode_inputs(inputs1, inputs2, encoder1, encoder2, device, sampling)
-        targets = targets[0]
 
         outputs = decoder(encoded_inputs_tensor)
         outputs = outputs.detach().view(-1).to(torch.device('cpu'))
@@ -143,8 +134,6 @@ def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_ty
     plt.ylabel("reconstruction")
     plt.xlabel("original")
     plt.title(data_type)
-
-    return max_data
 
 
 if __name__ == "__main__":
