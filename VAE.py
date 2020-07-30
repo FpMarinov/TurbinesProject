@@ -11,9 +11,9 @@ from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
 
-mode = "train"
 data_type = "thrust"
-epochs = 10
+mode = "train"
+epochs = 100
 show_y_equals_x = True
 visualise_training_and_validation_loss = True
 plot_loss_50_epoch_skip = True

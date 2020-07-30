@@ -137,4 +137,4 @@ def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_ty
 
 
 if __name__ == "__main__":
-    read_and_plot_losses(False)
+    read_and_plot_losses(True)
