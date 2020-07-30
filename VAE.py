@@ -13,8 +13,8 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 
 data_type = "thrust"
 mode = "train"
-epochs = 100
-plot_loss_50_epoch_skip = True
+epochs = 10
+plot_loss_50_epoch_skip = False
 
 data_sequence_size = 5
 batch_size = 5
@@ -25,7 +25,6 @@ convolution_channel_size_4 = 4
 fully_connected_unit_size = 400
 latent_dimensions = 1
 convolution_kernel = 3
-
 weights_path = "./vae_net_%s.pth" % data_type
 lr = 1e-4
 seed = 1
