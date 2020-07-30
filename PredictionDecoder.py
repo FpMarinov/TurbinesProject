@@ -185,6 +185,7 @@ if __name__ == "__main__":
     device, encoder1, encoder2, decoder, trainer = setup(data_enc1, data_enc2, data_pred,
                                                          weights_path_enc1, weights_path_enc2)
 
+    # train model if training is on
     if mode == "train":
         # do training and get losses
         average_training_losses, average_validation_losses = trainer.train_model()
