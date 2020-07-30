@@ -168,14 +168,14 @@ def loss_fn(output, mean, logvar, target):
     return mse + mkl
 
 
-def data_loader(data, device):
+def data_loader(data, device, shuffle=True):
     # format data
     tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
     tensor = tensor.to(device)
     dataset = TensorDataset(tensor)
 
     # load data
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+    loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
     return loader
 

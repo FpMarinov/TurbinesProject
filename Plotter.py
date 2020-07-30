@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from ReaderWriter import read_data_lists
-from ReaderWriter import read_losses
+from ReaderWriter import read_data_lists, read_losses
+from PredictionTrainer import encode_inputs
 
 
 def read_and_plot_data():
@@ -97,6 +97,37 @@ def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_typ
         inputs_targets = inputs_targets.numpy()
         originals.extend(inputs_targets)
 
+    max_data = reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type, show_y_equals_x)
+
+    # set up drop of outliers in visualisation if turned on
+    unit = max_data / 21
+    if drop_outliers:
+        y_upper_limit = max_data + unit
+    else:
+        y_upper_limit = None
+    plt.ylim(top=y_upper_limit, bottom=-unit)
+
+
+def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_to_predict, data_to_predict_type,
+                                           val_loader_enc1, val_loader_enc2, val_loader_pred, show_y_equals_x):
+    # get lists of original data and reconstructions
+    reconstructions = []
+    originals = data_to_predict
+
+    for inputs1, inputs2, targets in zip(val_loader_enc1, val_loader_enc2, val_loader_pred):
+        encoded_inputs_tensor = encode_inputs(inputs1, inputs2, encoder1, encoder2, device)
+        targets = targets[0]
+
+        outputs = decoder(encoded_inputs_tensor)
+        outputs = outputs.detach().view(-1).to(torch.device('cpu'))
+        outputs = outputs.numpy()
+        reconstructions.extend(outputs)
+
+    reconstruction_scatter_plot_helper(originals, reconstructions, data_to_predict, data_to_predict_type,
+                                       show_y_equals_x)
+
+
+def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type, show_y_equals_x):
     # make scatter plot of originals and reconstructions
     plt.figure()
     plt.scatter(originals, reconstructions)
@@ -113,13 +144,7 @@ def reconstruction_scatter_plot(vae, data, val_loader, show_y_equals_x, data_typ
     plt.xlabel("original")
     plt.title(data_type)
 
-    # set up drop of outliers in visualisation if turned on
-    unit = max_data / 21
-    if drop_outliers:
-        y_upper_limit = max_data + unit
-    else:
-        y_upper_limit = None
-    plt.ylim(top=y_upper_limit, bottom=-unit)
+    return max_data
 
 
 if __name__ == "__main__":
