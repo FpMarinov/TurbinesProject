@@ -162,10 +162,10 @@ if __name__ == "__main__":
         decoder.load_state_dict(torch.load(weights_path_decoder))
         decoder.eval()
 
-        # visualise reconstruction if visualisation is on
-        if visualise_scatter:
-            prediction_reconstruction_scatter_plot(encoder_thrust, encoder_torque, decoder, device, velocity_list,
-                                                   "velocity", val_loader_thrust, val_loader_torque,
-                                                   val_loader_velocity, show_y_equals_x)
+    # visualise reconstruction if visualisation is on
+    if visualise_scatter:
+        prediction_reconstruction_scatter_plot(encoder_thrust, encoder_torque, decoder, device, velocity_list,
+                                               "velocity", val_loader_thrust, val_loader_torque,val_loader_velocity,
+                                               show_y_equals_x)
 
-        plt.show()
+    plt.show()
