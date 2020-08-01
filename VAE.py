@@ -170,7 +170,7 @@ def loss_fn(output, mean, logvar, target):
 
 
 def data_loader(data, device, shuffle=True):
-    # format data
+    # format data and transfer to device
     tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
     tensor = tensor.to(device)
     dataset = TensorDataset(tensor)
