@@ -13,8 +13,8 @@ from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, v
 
 data_to_predict_type = "thrust"
 mode = "train"
-epochs = 10
-plot_loss_50_epoch_skip = False
+epochs = 100
+plot_loss_50_epoch_skip = True
 sampling = False
 
 fully_connected_unit_size = 400
@@ -86,7 +86,11 @@ class PredictionDecoder(nn.Module):
 def get_data_and_weights():
     # get all data
     velocity_list, thrust_list, torque_list = read_data_lists()
+
+    # multiply velocities by 10
     velocity_list = [x * 10 for x in velocity_list]
+
+    # divide thrusts by 10
     thrust_list = [x / 10 for x in thrust_list]
 
     # choose correct data and weights

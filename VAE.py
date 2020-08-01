@@ -188,9 +188,13 @@ def get_data():
     # choose correct data
     if data_type == "velocity":
         data = velocity_list
+
+        # multiply velocities by 10
         data = [x * 10 for x in data]
     elif data_type == "thrust":
         data = thrust_list
+
+        # divide thrusts by 10
         data = [x / 10 for x in data]
     elif data_type == "torque":
         data = torque_list
