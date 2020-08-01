@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import Adam
 import matplotlib.pyplot as plt
-from Trainer import Trainer
+from VAETrainer import VAETrainer
 from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
@@ -212,7 +212,7 @@ def setup(data):
         training_loader = data_loader(training_data, device)
         validation_loader = data_loader(validation_data, device)
 
-        trainer = Trainer(vae, epochs, training_loader, validation_loader, device, loss_fn, optimizer)
+        trainer = VAETrainer(vae, epochs, training_loader, validation_loader, device, loss_fn, optimizer)
     else:
         trainer = None
 

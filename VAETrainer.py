@@ -1,7 +1,7 @@
 import torch
 
 
-class Trainer:
+class VAETrainer:
 
     def __init__(self, model, num_epochs, train_loader, val_loader,
                  device, loss_criterion, optimizer):
