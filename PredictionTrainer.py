@@ -116,14 +116,14 @@ def encode_inputs(inputs1, inputs2, encoder1, encoder2, device, sampling):
         # sample gaussians
         std1 = torch.exp(0.5 * z_logvar1)
         eps1 = torch.randn_like(std1)
-        sampled_encoded_input1 = z_mean1 + eps1 * std1
+        sample1 = z_mean1 + eps1 * std1
 
         std2 = torch.exp(0.5 * z_logvar2)
         eps2 = torch.randn_like(std2)
-        sampled_encoded_input2 = z_mean2 + eps2 * std2
+        sample2 = z_mean2 + eps2 * std2
 
         # put the samples together
-        for x0, x1 in zip(sampled_encoded_input1, sampled_encoded_input2):
+        for x0, x1 in zip(sample1, sample2):
             x0 = x0.item()
             x1 = x1.item()
 

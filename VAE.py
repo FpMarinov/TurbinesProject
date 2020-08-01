@@ -140,10 +140,16 @@ class VAE(nn.Module):
         self.decoder = Decoder(z_dim, convolution_channel_size_4 * data_sequence_size)
 
     def forward(self, x):
+        # encode inputs into means and logs of variances
         z_mean, z_logvar = self.encoder(x)
+
+        # sample gaussians
         std = torch.exp(0.5 * z_logvar)
         eps = torch.randn_like(std)
-        output = self.decoder(z_mean + eps * std)
+        sample = z_mean + eps * std
+
+        # decode sample
+        output = self.decoder(sample)
 
         return output, z_mean, z_logvar
 
@@ -152,9 +158,11 @@ class VAE(nn.Module):
 
 
 def loss_fn(output, mean, logvar, target):
+    # calculate the mean squared error per data point
     criterion = nn.MSELoss()
     mse = criterion(output, target)
 
+    # calculate the mean kl divergence per data point
     kl = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
     mkl = kl / (batch_size * data_sequence_size)
 
