@@ -31,36 +31,44 @@ class PredictionTrainer:
         average_training_losses = []
         average_validation_losses = []
 
+        # epochs loop
         while self.epoch < self.num_epochs:
             self.decoder.train()
 
             training_losses_in_epoch = []
 
+            # iterations loop
             for inputs1, inputs2, targets in zip(self.train_loader_enc1, self.train_loader_enc2,
                                                  self.train_loader_pred):
+                # get encoded inputs and targets
                 encoded_inputs_tensor = encode_inputs(inputs1, inputs2, self.encoder1, self.encoder2, self.device,
                                                       self.sampling)
                 targets = targets[0]
 
+                # zero gradient and get outputs
                 self.optimizer.zero_grad()
-
                 outputs = self.decoder(encoded_inputs_tensor)
 
+                # calculate loss and do backpropagation
                 loss = self.loss_criterion(outputs, targets)
                 loss.backward()
                 self.optimizer.step()
 
+                # add training loss to list
                 loss_item = loss.cpu().detach().item()
                 training_losses_in_epoch.append(loss_item)
 
+            # print and add average training loss for epoch to list
             average_training_loss = sum(training_losses_in_epoch) / len(training_losses_in_epoch)
             average_training_losses.append(average_training_loss)
             print("Epoch {}: Average Training Loss: {}".format(self.epoch, average_training_loss))
 
+            # print and add average validation loss for epoch to list
             average_validation_loss = self.eval_model()
             average_validation_losses.append(average_validation_loss)
             print("Epoch {}: Average Validation Loss: {}".format(self.epoch, average_validation_loss))
 
+            # increment epoch
             self.epoch += 1
 
         return average_training_losses, average_validation_losses
@@ -71,33 +79,41 @@ class PredictionTrainer:
         validation_losses_in_epoch = []
 
         with torch.no_grad():
+            # validation iterations loop
             for inputs1, inputs2, targets in zip(self.train_loader_enc1, self.train_loader_enc2,
                                                  self.train_loader_pred):
+                # get encoded inputs and targets
                 encoded_inputs_tensor = encode_inputs(inputs1, inputs2, self.encoder1, self.encoder2, self.device,
                                                       self.sampling)
                 targets = targets[0]
 
+                # get outputs
                 outputs = self.decoder(encoded_inputs_tensor)
 
+                # calculate loss and add to list
                 loss = self.loss_criterion(outputs, targets)
                 loss_item = loss.cpu().detach().item()
                 validation_losses_in_epoch.append(loss_item)
 
+        # calculate average validation loss for epoch
         average_validation_loss = sum(validation_losses_in_epoch) / len(validation_losses_in_epoch)
 
         return average_validation_loss
 
 
 def encode_inputs(inputs1, inputs2, encoder1, encoder2, device, sampling):
+    # get inputs
     inputs1 = inputs1[0]
     inputs2 = inputs2[0]
 
+    # encode inputs into means and logs of variances
     z_mean1, z_logvar1 = encoder1(inputs1)
     z_mean2, z_logvar2 = encoder2(inputs2)
 
     encoded_inputs_list = []
 
     if sampling:
+        # sample gaussians
         std1 = torch.exp(0.5 * z_logvar1)
         eps1 = torch.randn_like(std1)
         sampled_encoded_input1 = z_mean1 + eps1 * std1
@@ -106,6 +122,7 @@ def encode_inputs(inputs1, inputs2, encoder1, encoder2, device, sampling):
         eps2 = torch.randn_like(std2)
         sampled_encoded_input2 = z_mean2 + eps2 * std2
 
+        # put the samples together
         for x0, x1 in zip(sampled_encoded_input1, sampled_encoded_input2):
             x0 = x0.item()
             x1 = x1.item()
@@ -115,6 +132,7 @@ def encode_inputs(inputs1, inputs2, encoder1, encoder2, device, sampling):
             encoded_inputs_list.append(sequence)
 
     else:
+        # put the means and logs of variances together
         for x0, x1, x2, x3 in zip(z_mean1, z_logvar1,
                                   z_mean2, z_logvar2):
             x0 = x0.item()
