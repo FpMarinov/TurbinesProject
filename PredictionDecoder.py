@@ -17,12 +17,11 @@ epochs = 10
 plot_loss_50_epoch_skip = False
 sampling = False
 
+fully_connected_unit_size = 400
 convolution_channel_size_1 = 4
 convolution_channel_size_2 = 16
 convolution_channel_size_3 = 8
 convolution_channel_size_4 = 16
-
-fully_connected_unit_size = 400
 convolution_kernel = 3
 weights_path_thrust = "./vae_net_thrust.pth"
 weights_path_torque = "./vae_net_torque.pth"
