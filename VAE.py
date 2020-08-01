@@ -11,10 +11,10 @@ from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
 
-data_type = "thrust"
+data_type = "velocity"
 mode = "train"
-epochs = 10
-plot_loss_50_epoch_skip = False
+epochs = 100
+plot_loss_50_epoch_skip = True
 
 data_sequence_size = 5
 batch_size = 5

@@ -17,16 +17,17 @@ epochs = 10
 plot_loss_50_epoch_skip = False
 sampling = False
 
-convolution_channel_size_1 = 16
-convolution_channel_size_2 = 8
-convolution_channel_size_3 = 16
-convolution_channel_size_4 = 4
+convolution_channel_size_1 = 4
+convolution_channel_size_2 = 16
+convolution_channel_size_3 = 8
+convolution_channel_size_4 = 16
+
 fully_connected_unit_size = 400
 convolution_kernel = 3
 weights_path_thrust = "./vae_net_thrust.pth"
 weights_path_torque = "./vae_net_torque.pth"
 weights_path_velocity = "./vae_net_velocity.pth"
-weights_path_decoder = "./vae_net_prediction_decoder.pth"
+weights_path_decoder = "./vae_net_prediction_decoder_%s.pth" % data_to_predict_type
 lr = 1e-4
 
 
@@ -43,13 +44,13 @@ class PredictionDecoder(nn.Module):
 
 
         # fully connected transformation
-        self.fc1 = nn.Linear(fully_connected_unit_size, convolution_channel_size_4 * data_sequence_size)
+        self.fc1 = nn.Linear(fully_connected_unit_size, convolution_channel_size_1 * data_sequence_size)
 
         # convolution
-        self.conv1 = nn.Conv1d(convolution_channel_size_4, convolution_channel_size_3, convolution_kernel, 1, 1)
-        self.conv2 = nn.Conv1d(convolution_channel_size_3, convolution_channel_size_2, convolution_kernel, 1, 1)
-        self.conv3 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_1, convolution_kernel, 1, 1)
-        self.conv4 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
+        self.conv1 = nn.Conv1d(convolution_channel_size_1, convolution_channel_size_2, convolution_kernel, 1, 1)
+        self.conv2 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_3, convolution_kernel, 1, 1)
+        self.conv3 = nn.Conv1d(convolution_channel_size_3, convolution_channel_size_4, convolution_kernel, 1, 1)
+        self.conv4 = nn.Conv1d(convolution_channel_size_4, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
         # print("-1:", z_input.size())
@@ -62,7 +63,7 @@ class PredictionDecoder(nn.Module):
         x = F.relu(x)
         # print("-3:", x.size())
 
-        x = x.view(z_input.size()[0], convolution_channel_size_4, data_sequence_size)
+        x = x.view(z_input.size()[0], convolution_channel_size_1, data_sequence_size)
         # print("-4:", x.size())
 
         x = self.conv1(x)
@@ -92,49 +93,49 @@ def get_data_and_weights():
 
     # choose correct data and weights
     if data_to_predict_type == "velocity":
-        data_enc1 = thrust_list
-        data_enc2 = torque_list
-        data_pred = velocity_list
+        data_to_encode1 = thrust_list
+        data_to_encode2 = torque_list
+        data_to_predict = velocity_list
 
-        weights_path_enc1 = weights_path_thrust
-        weights_path_enc2 = weights_path_torque
+        weights_path_vae1 = weights_path_thrust
+        weights_path_vae2 = weights_path_torque
     elif data_to_predict_type == "torque":
-        data_enc1 = thrust_list
-        data_enc2 = velocity_list
-        data_pred = torque_list
+        data_to_encode1 = thrust_list
+        data_to_encode2 = velocity_list
+        data_to_predict = torque_list
 
-        weights_path_enc1 = weights_path_thrust
-        weights_path_enc2 = weights_path_velocity
+        weights_path_vae1 = weights_path_thrust
+        weights_path_vae2 = weights_path_velocity
     elif data_to_predict_type == "thrust":
-        data_enc1 = torque_list
-        data_enc2 = velocity_list
-        data_pred = thrust_list
+        data_to_encode1 = torque_list
+        data_to_encode2 = velocity_list
+        data_to_predict = thrust_list
 
-        weights_path_enc1 = weights_path_torque
-        weights_path_enc2 = weights_path_velocity
+        weights_path_vae1 = weights_path_torque
+        weights_path_vae2 = weights_path_velocity
     else:
         sys.exit("Incorrect data type.")
 
-    return data_enc1, data_enc2, data_pred, weights_path_enc1, weights_path_enc2
+    return data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, weights_path_vae2
 
 
-def setup(data_enc1, data_enc2, data_pred, weights_path_enc1, weights_path_enc2):
+def setup(data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, weights_path_vae2):
     # set seed
     torch.manual_seed(seed)
 
     # setup neural networks and optimizer
-    vae_enc1 = VAE(latent_dimensions)
-    vae_enc2 = VAE(latent_dimensions)
+    vae1 = VAE(latent_dimensions)
+    vae2 = VAE(latent_dimensions)
     decoder = PredictionDecoder()
     optimizer = Adam(decoder.parameters(), lr=lr)
 
     # load model weights
-    vae_enc1.load_state_dict(torch.load(weights_path_enc1))
-    vae_enc2.load_state_dict(torch.load(weights_path_enc2))
+    vae1.load_state_dict(torch.load(weights_path_vae1))
+    vae2.load_state_dict(torch.load(weights_path_vae2))
 
     # get encoders
-    encoder1 = vae_enc1.encoder
-    encoder2 = vae_enc2.encoder
+    encoder1 = vae1.encoder
+    encoder2 = vae2.encoder
 
     # set encoders to evaluation
     encoder1.eval()
@@ -148,29 +149,33 @@ def setup(data_enc1, data_enc2, data_pred, weights_path_enc1, weights_path_enc2)
 
     if mode == "train":
         # split data into training and validation data
-        pred_train, pred_val = train_test_split(data_pred, test_size=validation_data_fraction,
-                                                train_size=1 - validation_data_fraction, shuffle=False)
-
-        enc2_train, enc2_val = train_test_split(data_enc2, test_size=validation_data_fraction,
-                                                train_size=1 - validation_data_fraction, shuffle=False)
-
-        enc1_train, enc1_val = train_test_split(data_enc1, test_size=validation_data_fraction,
-                                                train_size=1 - validation_data_fraction, shuffle=False)
+        training_data_to_encode1, validation_data_to_encode1 = train_test_split(data_to_encode1,
+                                                                                test_size=validation_data_fraction,
+                                                                                train_size=1 - validation_data_fraction,
+                                                                                shuffle=False)
+        training_data_to_encode2, validation_data_to_encode2 = train_test_split(data_to_encode2,
+                                                                                test_size=validation_data_fraction,
+                                                                                train_size=1 - validation_data_fraction,
+                                                                                shuffle=False)
+        training_data_to_predict, validation_data_to_predict = train_test_split(data_to_predict,
+                                                                                test_size=validation_data_fraction,
+                                                                                train_size=1 - validation_data_fraction,
+                                                                                shuffle=False)
 
         # load training and validation data
-        train_loader_pred = data_loader(pred_train, device, shuffle=False)
-        val_loader_pred = data_loader(pred_val, device, shuffle=False)
+        training_loader_to_encode1 = data_loader(training_data_to_encode1, device, shuffle=False)
+        validation_loader_to_encode1 = data_loader(validation_data_to_encode1, device, shuffle=False)
 
-        train_loader_enc2 = data_loader(enc2_train, device, shuffle=False)
-        val_loader_enc2 = data_loader(enc2_val, device, shuffle=False)
+        training_loader_to_encode2 = data_loader(training_data_to_encode2, device, shuffle=False)
+        validation_loader_to_encode2 = data_loader(validation_data_to_encode2, device, shuffle=False)
 
-        train_loader_enc1 = data_loader(enc1_train, device, shuffle=False)
-        val_loader_enc1 = data_loader(enc1_val, device, shuffle=False)
+        training_loader_to_predict = data_loader(training_data_to_predict, device, shuffle=False)
+        validation_loader_to_predict = data_loader(validation_data_to_predict, device, shuffle=False)
 
         trainer = PredictionTrainer(encoder1, encoder2, decoder, epochs,
-                                    train_loader_enc1, train_loader_enc2, train_loader_pred,
-                                    val_loader_enc1, val_loader_enc2, val_loader_pred,
-                                    device, optimizer, sampling)
+                                    training_loader_to_encode1, training_loader_to_encode2, training_loader_to_predict,
+                                    validation_loader_to_encode1, validation_loader_to_encode2,
+                                    validation_loader_to_predict, device, optimizer, sampling)
     else:
         trainer = None
 
@@ -179,11 +184,11 @@ def setup(data_enc1, data_enc2, data_pred, weights_path_enc1, weights_path_enc2)
 
 if __name__ == "__main__":
     # get data and weights
-    data_enc1, data_enc2, data_pred, weights_path_enc1, weights_path_enc2 = get_data_and_weights()
+    data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, weights_path_vae2 = get_data_and_weights()
 
     # setup
-    device, encoder1, encoder2, decoder, trainer = setup(data_enc1, data_enc2, data_pred,
-                                                         weights_path_enc1, weights_path_enc2)
+    device, encoder1, encoder2, decoder, trainer = setup(data_to_encode1, data_to_encode2, data_to_predict,
+                                                         weights_path_vae1, weights_path_vae2)
 
     # train model if training is on
     if mode == "train":
@@ -200,9 +205,9 @@ if __name__ == "__main__":
         losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
     # load all data
-    val_loader_pred = data_loader(data_pred, device, shuffle=False)
-    val_loader_enc2 = data_loader(data_enc2, device, shuffle=False)
-    val_loader_enc1 = data_loader(data_enc1, device, shuffle=False)
+    validation_loader_to_encode1 = data_loader(data_to_encode1, device, shuffle=False)
+    validation_loader_to_encode2 = data_loader(data_to_encode2, device, shuffle=False)
+    validation_loader_to_predict = data_loader(data_to_predict, device, shuffle=False)
 
     # load model weights and activate evaluation if training is off
     if mode != "train":
@@ -210,8 +215,8 @@ if __name__ == "__main__":
         decoder.eval()
 
     # visualise reconstruction
-    prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_pred,
-                                           data_to_predict_type, val_loader_enc1, val_loader_enc2,
-                                           sampling)
+    prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_to_predict,
+                                           data_to_predict_type, validation_loader_to_encode1,
+                                           validation_loader_to_encode2, sampling)
 
     plt.show()
