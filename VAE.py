@@ -206,13 +206,13 @@ def setup(data):
 
     if mode == "train":
         # split data into training and validation data
-        data_train, data_val = train_test_split(data, test_size=validation_data_fraction,
-                                                train_size=1 - validation_data_fraction, shuffle=False)
+        training_data, validation_data = train_test_split(data, test_size=validation_data_fraction,
+                                                          train_size=1 - validation_data_fraction, shuffle=False)
         # load training and validation data
-        train_loader = data_loader(data_train, device)
-        val_loader = data_loader(data_val, device)
+        training_loader = data_loader(training_data, device)
+        validation_loader = data_loader(validation_data, device)
 
-        trainer = Trainer(vae, epochs, train_loader, val_loader, device, loss_fn, optimizer)
+        trainer = Trainer(vae, epochs, training_loader, validation_loader, device, loss_fn, optimizer)
     else:
         trainer = None
 
@@ -241,7 +241,7 @@ if __name__ == "__main__":
         losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
 
     # load all data
-    val_loader = data_loader(data, device)
+    validation_loader = data_loader(data, device)
 
     # load model weights and activate evaluation if training is off
     if mode != "train":
@@ -249,6 +249,6 @@ if __name__ == "__main__":
         vae.eval()
 
     # visualise reconstruction
-    reconstruction_scatter_plot(vae, data, val_loader, data_type)
+    reconstruction_scatter_plot(vae, data, validation_loader, data_type)
 
     plt.show()
