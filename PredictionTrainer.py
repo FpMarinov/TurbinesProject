@@ -144,6 +144,7 @@ def encode_inputs(inputs1, inputs2, encoder1, encoder2, device, sampling):
 
             encoded_inputs_list.append(sequence)
 
+    # transform encoded inputs into tensor on device
     encoded_inputs_tensor = torch.tensor(encoded_inputs_list)
     encoded_inputs_tensor = encoded_inputs_tensor.to(device)
 
