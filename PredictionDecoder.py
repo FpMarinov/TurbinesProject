@@ -41,7 +41,6 @@ class PredictionDecoder(nn.Module):
         else:
             self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
 
-
         # fully connected transformation
         self.fc1 = nn.Linear(fully_connected_unit_size, convolution_channel_size_1 * data_sequence_size)
 
