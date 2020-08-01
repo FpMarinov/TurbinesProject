@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import Adam
 import matplotlib.pyplot as plt
-from trainer import Trainer
+from Trainer import Trainer
 from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
