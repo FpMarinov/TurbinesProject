@@ -6,12 +6,13 @@ from torch import nn
 import torch.nn.functional as F
 from torch.optim import Adam
 from Plotter import losses_plot, prediction_reconstruction_scatter_plot
+from PredictionDecoderVelocity import PredictionDecoderVelocity
 from PredictionTrainer import PredictionTrainer
 from ReaderWriter import read_data_lists, write_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction
 
 
-data_to_predict_type = "thrust"
+data_to_predict_type = "velocity"
 mode = "train"
 epochs = 100
 plot_loss_50_epoch_skip = True
@@ -128,7 +129,10 @@ def setup(data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, 
     # setup neural networks and optimizer
     vae1 = VAE(latent_dimensions)
     vae2 = VAE(latent_dimensions)
-    decoder = PredictionDecoder()
+    if data_to_predict_type == "velocity":
+        decoder = PredictionDecoderVelocity()
+    else:
+        decoder = PredictionDecoder()
     optimizer = Adam(decoder.parameters(), lr=lr)
 
     # load model weights
