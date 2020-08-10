@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import Adam
 import matplotlib.pyplot as plt
 from VAETrainer import VAETrainer
-from ReaderWriter import read_data_lists, write_general_losses, write_losses
+from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
 data_type = "thrust"

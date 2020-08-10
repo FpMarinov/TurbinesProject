@@ -3,7 +3,6 @@ import torch
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from torch import nn
-import torch.nn.functional as F
 from torch.optim import Adam
 from Plotter import losses_plot, prediction_reconstruction_scatter_plot
 from PredictionDecoderVelocity import PredictionDecoderVelocity
