@@ -11,8 +11,8 @@ from ReaderWriter import read_data_lists, write_general_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction, lr, Decoder, \
     convolution_channel_size_4, fully_connected_unit_size
 
-data_to_predict_type = "thrust"
-mode = "train"
+data_to_predict_type = "velocity"
+mode = "test"
 epochs = 3
 plot_loss_1_epoch_skip = True
 plot_loss_50_epoch_skip = False
@@ -157,7 +157,7 @@ if __name__ == "__main__":
         torch.save(decoder.state_dict(), weights_path_decoder)
 
         # record average training and validation losses per epoch
-        write_general_losses(average_training_losses, average_validation_losses)
+        write_general_losses(average_training_losses, average_validation_losses, 'loss_record.csv')
 
         # visualise average training and validation losses per epoch
         losses_plot(average_training_losses, average_validation_losses,
