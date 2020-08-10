@@ -1,13 +1,13 @@
 import csv
 
 
-def read_data_lists():
+def read_data_lists(file_name='Data.txt'):
     velocity_list = []
     thrust_list = []
     torque_list = []
 
     # open Data.txt file
-    with open('Data.txt') as csv_file:
+    with open(file_name) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter='\t')
         first_line = True
 
@@ -81,3 +81,9 @@ def write_losses(average_total_training_losses, average_total_validation_losses,
                  average_mse_training_losses, average_mse_validation_losses):
     write_general_losses(average_total_training_losses, average_total_validation_losses, 'loss_record.csv')
     write_general_losses(average_mse_training_losses, average_mse_validation_losses, 'mse_loss_record.csv')
+
+
+if __name__ == "__main__":
+    velocity_list, thrust_list, torque_list = read_data_lists('Data.txt')
+    print('1D&3D: ', len(velocity_list))
+

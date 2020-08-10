@@ -12,9 +12,9 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 
 data_type = "thrust"
 mode = "train"
-epochs = 3
+epochs = 100
 plot_loss_1_epoch_skip = True
-plot_loss_50_epoch_skip = False
+plot_loss_50_epoch_skip = True
 
 data_sequence_size = 5
 batch_size = 5
@@ -28,7 +28,7 @@ convolution_kernel = 3
 weights_path = "./vae_net_%s.pth" % data_type
 lr = 1e-4
 seed = 1
-validation_data_fraction = 0.2
+validation_data_fraction = 0.25
 
 
 class Encoder(nn.Module):
@@ -184,7 +184,7 @@ def get_data():
         data = torque_list
     else:
         sys.exit("Incorrect data type.")
-
+    
     return data
 
 
