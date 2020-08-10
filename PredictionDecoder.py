@@ -8,80 +8,33 @@ from torch.optim import Adam
 from Plotter import losses_plot, prediction_reconstruction_scatter_plot
 from PredictionDecoderVelocity import PredictionDecoderVelocity
 from PredictionTrainer import PredictionTrainer
-from ReaderWriter import read_data_lists, write_losses
-from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction
-
+from ReaderWriter import read_data_lists, write_general_losses
+from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction, lr, Decoder, \
+    convolution_channel_size_4, fully_connected_unit_size
 
 data_to_predict_type = "velocity"
 mode = "train"
 epochs = 100
+plot_loss_1_epoch_skip = True
 plot_loss_50_epoch_skip = True
 sampling = False
 
-fully_connected_unit_size = 400
-convolution_channel_size_1 = 4
-convolution_channel_size_2 = 16
-convolution_channel_size_3 = 8
-convolution_channel_size_4 = 16
-convolution_kernel = 3
 weights_path_thrust = "./vae_net_thrust.pth"
 weights_path_torque = "./vae_net_torque.pth"
 weights_path_velocity = "./vae_net_velocity.pth"
 weights_path_decoder = "./vae_net_prediction_decoder_%s.pth" % data_to_predict_type
-lr = 1e-4
 
 
-class PredictionDecoder(nn.Module):
+class PredictionDecoder(Decoder):
 
     def __init__(self):
-        super(PredictionDecoder, self).__init__()
+        super(PredictionDecoder, self).__init__(latent_dimensions, convolution_channel_size_4 * data_sequence_size)
 
         # latent space transformation
         if sampling:
             self.fc_lat = nn.Linear(2 * latent_dimensions, fully_connected_unit_size)
         else:
             self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
-
-        # fully connected transformation
-        self.fc1 = nn.Linear(fully_connected_unit_size, convolution_channel_size_1 * data_sequence_size)
-
-        # convolution
-        self.conv1 = nn.Conv1d(convolution_channel_size_1, convolution_channel_size_2, convolution_kernel, 1, 1)
-        self.conv2 = nn.Conv1d(convolution_channel_size_2, convolution_channel_size_3, convolution_kernel, 1, 1)
-        self.conv3 = nn.Conv1d(convolution_channel_size_3, convolution_channel_size_4, convolution_kernel, 1, 1)
-        self.conv4 = nn.Conv1d(convolution_channel_size_4, 1, convolution_kernel, 1, 1)
-
-    def forward(self, z_input):
-        # print("-1:", z_input.size())
-
-        x = self.fc_lat(z_input)
-        x = F.relu(x)
-        # print("-2:", x.size())
-
-        x = self.fc1(x)
-        x = F.relu(x)
-        # print("-3:", x.size())
-
-        x = x.view(z_input.size()[0], convolution_channel_size_1, data_sequence_size)
-        # print("-4:", x.size())
-
-        x = self.conv1(x)
-        x = F.relu(x)
-        # print("-5:", x.size())
-
-        x = self.conv2(x)
-        x = F.relu(x)
-        # print("-6:", x.size())
-
-        x = self.conv3(x)
-        x = F.relu(x)
-        # print("-7:", x.size())
-
-        x = self.conv4(x)
-        output = F.relu(x)
-        # print("-8:", x.size())
-
-        return output
 
 
 def get_data_and_weights():
@@ -205,10 +158,11 @@ if __name__ == "__main__":
         torch.save(decoder.state_dict(), weights_path_decoder)
 
         # record average training and validation losses per epoch
-        write_losses(average_training_losses, average_validation_losses)
+        write_general_losses(average_training_losses, average_validation_losses)
 
         # visualise average training and validation losses per epoch
-        losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
+        losses_plot(average_training_losses, average_validation_losses,
+                    plot_1_epoch_skip=plot_loss_1_epoch_skip, plot_50_epoch_skip=plot_loss_50_epoch_skip)
 
     # load all data
     validation_loader_to_encode1 = data_loader(data_to_encode1, device, shuffle=False)

@@ -29,12 +29,12 @@ def read_data_lists():
     return velocity_list, thrust_list, torque_list
 
 
-def read_losses():
+def read_losses(file_name='loss_record.csv'):
     train_loss_list = []
     validation_loss_list = []
 
     # open loss_record.csv file
-    with open('loss_record.csv') as csv_file:
+    with open(file_name) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter='\t')
         first_line = True
         even_line = False
@@ -62,9 +62,9 @@ def read_losses():
         return train_loss_list, validation_loss_list
 
 
-def write_losses(average_training_losses, average_validation_losses):
+def write_general_losses(average_training_losses, average_validation_losses, file_name):
     # open/create loss_record.csv file
-    with open('loss_record.csv', 'w') as csv_file:
+    with open(file_name, 'w') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter='\t')
 
         # write headers
@@ -75,3 +75,9 @@ def write_losses(average_training_losses, average_validation_losses):
         for avg_train_loss, avg_val_loss in zip(average_training_losses, average_validation_losses):
             row = [avg_train_loss, avg_val_loss]
             csv_writer.writerow(row)
+
+
+def write_losses(average_total_training_losses, average_total_validation_losses,
+                 average_mse_training_losses, average_mse_validation_losses):
+    write_general_losses(average_total_training_losses, average_total_validation_losses, 'loss_record.csv')
+    write_general_losses(average_mse_training_losses, average_mse_validation_losses, 'mse_loss_record.csv')

@@ -17,14 +17,17 @@ class VAETrainer:
     def train_model(self):
         self.model.to(self.device)
 
-        average_training_losses = []
-        average_validation_losses = []
+        average_total_training_losses = []
+        average_total_validation_losses = []
+        average_mse_training_losses = []
+        average_mse_validation_losses = []
 
         # epochs loop
         while self.epoch < self.num_epochs:
             self.model.train()
 
-            training_losses_in_epoch = []
+            total_training_losses_in_epoch = []
+            mse_training_losses_in_epoch = []
 
             # iterations loop
             for inputs_targets in self.train_loader:
@@ -36,33 +39,42 @@ class VAETrainer:
                 outputs = self.model(inputs_targets)
 
                 # calculate loss and do backpropagation
-                loss = self.loss_criterion(outputs[0], outputs[1], outputs[2], inputs_targets)
-                loss.backward()
+                total_loss, mse_loss = self.loss_criterion(outputs[0], outputs[1], outputs[2], inputs_targets)
+                total_loss.backward()
                 self.optimizer.step()
 
                 # add training loss to list
-                loss_item = loss.cpu().detach().item()
-                training_losses_in_epoch.append(loss_item)
+                total_loss_item = total_loss.cpu().detach().item()
+                total_training_losses_in_epoch.append(total_loss_item)
+                mse_loss_item = mse_loss.cpu().detach().item()
+                mse_training_losses_in_epoch.append(mse_loss_item)
 
             # calculate, print and add average training loss for epoch to list
-            average_training_loss = sum(training_losses_in_epoch) / len(training_losses_in_epoch)
-            average_training_losses.append(average_training_loss)
-            print("Epoch {}: Average Training Loss: {}".format(self.epoch, average_training_loss))
+            average_total_training_loss = sum(total_training_losses_in_epoch) / len(total_training_losses_in_epoch)
+            average_total_training_losses.append(average_total_training_loss)
+            print("Epoch {}: Average Total Training Loss: {}".format(self.epoch, average_total_training_loss))
+            average_mse_training_loss = sum(mse_training_losses_in_epoch) / len(mse_training_losses_in_epoch)
+            average_mse_training_losses.append(average_mse_training_loss)
+            print("Epoch {}: Average MSE Training Loss: {}".format(self.epoch, average_mse_training_loss))
 
             # calculate, print and add average validation loss for epoch to list
-            average_validation_loss = self.eval_model()
-            average_validation_losses.append(average_validation_loss)
-            print("Epoch {}: Average Validation Loss: {}".format(self.epoch, average_validation_loss))
+            average_total_validation_loss, average_mse_validation_loss = self.eval_model()
+            average_total_validation_losses.append(average_total_validation_loss)
+            print("Epoch {}: Average Total Validation Loss: {}".format(self.epoch, average_total_validation_loss))
+            average_mse_validation_losses.append(average_mse_validation_loss)
+            print("Epoch {}: Average MSE Validation Loss: {}".format(self.epoch, average_mse_validation_loss))
 
             # increment epoch
             self.epoch += 1
 
-        return average_training_losses, average_validation_losses
+        return average_total_training_losses, average_total_validation_losses, \
+            average_mse_training_losses, average_mse_validation_losses
 
     def eval_model(self):
         self.model.eval()
 
-        validation_losses_in_epoch = []
+        total_validation_losses_in_epoch = []
+        mse_validation_losses_in_epoch = []
 
         with torch.no_grad():
             # validation iterations loop
@@ -74,11 +86,14 @@ class VAETrainer:
                 outputs = self.model(inputs_targets)
 
                 # calculate loss and add to list
-                loss = self.loss_criterion(outputs[0], outputs[1], outputs[2], inputs_targets)
-                loss_item = loss.cpu().detach().item()
-                validation_losses_in_epoch.append(loss_item)
+                total_loss, mse_loss = self.loss_criterion(outputs[0], outputs[1], outputs[2], inputs_targets)
+                total_loss_item = total_loss.cpu().detach().item()
+                total_validation_losses_in_epoch.append(total_loss_item)
+                mse_loss_item = mse_loss.cpu().detach().item()
+                mse_validation_losses_in_epoch.append(mse_loss_item)
 
         # calculate average validation loss for epoch
-        average_validation_loss = sum(validation_losses_in_epoch) / len(validation_losses_in_epoch)
+        average_total_validation_loss = sum(total_validation_losses_in_epoch) / len(total_validation_losses_in_epoch)
+        average_mse_validation_loss = sum(mse_validation_losses_in_epoch) / len(mse_validation_losses_in_epoch)
 
-        return average_validation_loss
+        return average_total_validation_loss, average_mse_validation_loss

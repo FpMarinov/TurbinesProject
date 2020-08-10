@@ -45,7 +45,8 @@ def data_list_plot(list, name, start_index=0, end_index=None, data_fraction=None
     plt.ylabel(name)
 
 
-def losses_plot(average_training_losses, average_validation_losses, plot_50_epoch_skip=False):
+def losses_plot(average_training_losses, average_validation_losses, plot_1_epoch_skip=True,
+                plot_50_epoch_skip=False, title="Training Loss"):
     # get number of epochs
     epochs = len(average_training_losses)
 
@@ -59,19 +60,20 @@ def losses_plot(average_training_losses, average_validation_losses, plot_50_epoc
     plt.ylabel("Avg Loss")
     plt.xlabel("Epoch")
     plt.legend(loc='best')
-    plt.title("Training Loss")
+    plt.title(title)
 
-    # plot losses skipping 1st epoch
-    plt.figure()
-    epochs_arr = np.linspace(1, epochs - 1, epochs - 1)
-    plt.plot(epochs_arr, average_training_losses[1:], label="Avg Train Loss", color="blue")
-    plt.plot(epochs_arr, average_validation_losses[1:], label="Avg Val Loss", color="red")
+    if plot_1_epoch_skip:
+        # plot losses skipping 1st epoch
+        plt.figure()
+        epochs_arr = np.linspace(1, epochs - 1, epochs - 1)
+        plt.plot(epochs_arr, average_training_losses[1:], label="Avg Train Loss", color="blue")
+        plt.plot(epochs_arr, average_validation_losses[1:], label="Avg Val Loss", color="red")
 
-    # set axis labels and legend
-    plt.ylabel("Avg Loss")
-    plt.xlabel("Epoch")
-    plt.legend(loc='best')
-    plt.title("Training Loss")
+        # set axis labels and legend
+        plt.ylabel("Avg Loss")
+        plt.xlabel("Epoch")
+        plt.legend(loc='best')
+        plt.title(title)
 
     if plot_50_epoch_skip:
         # plot losses skipping first 50 epochs
@@ -84,7 +86,7 @@ def losses_plot(average_training_losses, average_validation_losses, plot_50_epoc
         plt.ylabel("Avg Loss")
         plt.xlabel("Epoch")
         plt.legend(loc='best')
-        plt.title("Training Loss")
+        plt.title(title)
 
 
 def reconstruction_scatter_plot(vae, data, val_loader, data_type):

@@ -7,14 +7,14 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.optim import Adam
 import matplotlib.pyplot as plt
 from VAETrainer import VAETrainer
-from ReaderWriter import read_data_lists, write_losses
+from ReaderWriter import read_data_lists, write_general_losses, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
-
-data_type = "velocity"
+data_type = "thrust"
 mode = "train"
-epochs = 100
-plot_loss_50_epoch_skip = True
+epochs = 3
+plot_loss_1_epoch_skip = True
+plot_loss_50_epoch_skip = False
 
 data_sequence_size = 5
 batch_size = 5
@@ -166,7 +166,7 @@ def loss_fn(output, mean, logvar, target):
     kl = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
     mkl = kl / (batch_size * data_sequence_size)
 
-    return mse + mkl
+    return mse + mkl, mse
 
 
 def data_loader(data, device, shuffle=True):
@@ -241,16 +241,23 @@ if __name__ == "__main__":
     # train model if training is on
     if mode == "train":
         # do training and get losses
-        average_training_losses, average_validation_losses = trainer.train_model()
+        average_total_training_losses, average_total_validation_losses, \
+            average_mse_training_losses, average_mse_validation_losses = trainer.train_model()
 
         # save weights
         torch.save(vae.state_dict(), weights_path)
 
         # record average training and validation losses per epoch
-        write_losses(average_training_losses, average_validation_losses)
+        write_losses(average_total_training_losses, average_total_validation_losses,
+                     average_mse_training_losses, average_mse_validation_losses)
 
         # visualise average training and validation losses per epoch
-        losses_plot(average_training_losses, average_validation_losses, plot_loss_50_epoch_skip)
+        losses_plot(average_total_training_losses, average_total_validation_losses,
+                    plot_1_epoch_skip=plot_loss_1_epoch_skip, plot_50_epoch_skip=plot_loss_50_epoch_skip,
+                    title="Total Training Loss")
+        losses_plot(average_mse_training_losses, average_mse_validation_losses,
+                    plot_1_epoch_skip=plot_loss_1_epoch_skip, plot_50_epoch_skip=plot_loss_50_epoch_skip,
+                    title="MSE Training Loss")
 
     # load all data
     validation_loader = data_loader(data, device)
