@@ -50,34 +50,26 @@ class Encoder(nn.Module):
         self.z_sigma = nn.Linear(fully_connected_unit_size, z_dim)
 
     def forward(self, x):
-        # print("1:", x.size())
-
+        # convolution
         x = self.conv1(x)
         x = F.relu(x)
-        # print("2:", x.size())
-
         x = self.conv2(x)
         x = F.relu(x)
-        # print("3:", x.size())
-
         x = self.conv3(x)
         x = F.relu(x)
-        # print("4:", x.size())
-
         x = self.conv4(x)
         x = F.relu(x)
-        # print("5:", x.size())
 
+        # reformat
         x = torch.flatten(x, 1)
-        # print("6:", x.size())
 
+        # fully connected transformation
         x = self.fc1(x)
         x = F.relu(x)
-        # print("7:", x.size())
 
+        # get mean and log variance
         z_loc = self.z_mu(x)
         z_logvar = self.z_sigma(x)
-        # print("8:", z_loc.size())
 
         return z_loc, z_logvar
 
@@ -100,36 +92,28 @@ class Decoder(nn.Module):
         self.conv4 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
-        # print("-1:", z_input.size())
-
+        # latent space transformation
         x = self.fc_lat(z_input)
         x = F.relu(x)
-        # print("-2:", x.size())
 
+        # fully connected transformation
         x = self.fc1(x)
         x = F.relu(x)
-        # print("-3:", x.size())
 
+        # reformat
         x = x.view(z_input.size()[0], convolution_channel_size_4, data_sequence_size)
-        # print("-4:", x.size())
 
+        # convolution
         x = self.conv1(x)
         x = F.relu(x)
-        # print("-5:", x.size())
-
         x = self.conv2(x)
         x = F.relu(x)
-        # print("-6:", x.size())
-
         x = self.conv3(x)
         x = F.relu(x)
-        # print("-7:", x.size())
-
         x = self.conv4(x)
-        output = F.relu(x)
-        # print("-8:", x.size())
+        x = F.relu(x)
 
-        return output
+        return x
 
 
 class VAE(nn.Module):

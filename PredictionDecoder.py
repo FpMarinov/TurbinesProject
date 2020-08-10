@@ -11,11 +11,11 @@ from ReaderWriter import read_data_lists, write_general_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, validation_data_fraction, lr, Decoder, \
     convolution_channel_size_4, fully_connected_unit_size
 
-data_to_predict_type = "velocity"
+data_to_predict_type = "thrust"
 mode = "train"
-epochs = 100
+epochs = 3
 plot_loss_1_epoch_skip = True
-plot_loss_50_epoch_skip = True
+plot_loss_50_epoch_skip = False
 sampling = False
 
 weights_path_thrust = "./vae_net_thrust.pth"
@@ -82,7 +82,7 @@ def setup(data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, 
     vae1 = VAE(latent_dimensions)
     vae2 = VAE(latent_dimensions)
     if data_to_predict_type == "velocity":
-        decoder = PredictionDecoderVelocity()
+        decoder = PredictionDecoderVelocity(sampling)
     else:
         decoder = PredictionDecoder()
     optimizer = Adam(decoder.parameters(), lr=lr)

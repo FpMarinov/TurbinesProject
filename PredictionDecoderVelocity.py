@@ -3,8 +3,6 @@ import torch.nn.functional as F
 from VAE import latent_dimensions, data_sequence_size
 
 
-sampling = False
-
 fully_connected_unit_size = 400
 convolution_channel_size_1 = 4
 convolution_channel_size_2 = 4
@@ -14,7 +12,7 @@ convolution_kernel = 3
 
 class PredictionDecoderVelocity(nn.Module):
 
-    def __init__(self):
+    def __init__(self, sampling):
         super(PredictionDecoderVelocity, self).__init__()
 
         # latent space transformation
@@ -32,30 +30,24 @@ class PredictionDecoderVelocity(nn.Module):
         self.conv3 = nn.Conv1d(convolution_channel_size_3, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
-        # print("-1:", z_input.size())
-
+        # latent space transformation
         x = self.fc_lat(z_input)
         x = F.relu(x)
-        # print("-2:", x.size())
 
+        # fully connected transformation
         x = self.fc1(x)
         x = F.relu(x)
-        # print("-3:", x.size())
 
+        # reformat
         x = x.view(z_input.size()[0], convolution_channel_size_1, data_sequence_size)
-        # print("-4:", x.size())
 
+        # convolution
         x = self.conv1(x)
         x = F.relu(x)
-        # print("-5:", x.size())
-
         x = self.conv2(x)
         x = F.relu(x)
-        # print("-6:", x.size())
-
         x = self.conv3(x)
         x = F.relu(x)
-        # print("-7:", x.size())
 
         return x
 
