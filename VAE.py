@@ -10,11 +10,12 @@ from VAETrainer import VAETrainer
 from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
-data_type = "thrust"
+data_type = "torque"
 mode = "train"
 epochs = 100
 plot_loss_1_epoch_skip = True
 plot_loss_50_epoch_skip = True
+validation_data_fraction = 0.2
 
 data_sequence_size = 5
 batch_size = 5
@@ -28,7 +29,6 @@ convolution_kernel = 3
 weights_path = "./vae_net_%s.pth" % data_type
 lr = 1e-4
 seed = 1
-validation_data_fraction = 0.25
 
 
 class Encoder(nn.Module):

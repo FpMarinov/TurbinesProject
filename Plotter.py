@@ -157,6 +157,22 @@ def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_ty
     plt.xlabel("original")
     plt.title(data_type)
 
+    # print signed error mean & standard deviation
+    print_signed_error_mean_and_std(originals, reconstructions)
+
+
+def print_signed_error_mean_and_std(originals, reconstructions):
+    originals_array = np.array(originals)
+    reconstructions_array = np.array(reconstructions)
+
+    difference_array = reconstructions_array - originals_array
+
+    signed_error_mean = np.mean(difference_array)
+    signed_error_std = np.std(difference_array)
+
+    print("Signed Error Mean: ", signed_error_mean)
+    print("Signed Error STD: ", signed_error_std)
+
 
 if __name__ == "__main__":
     read_and_plot_losses(True)
