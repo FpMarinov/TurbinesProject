@@ -11,11 +11,11 @@ from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
 data_type = "velocity"
-mode = "test"
-epochs = 100
+mode = "train"
+epochs = 3
 plot_loss_1_epoch_skip = True
-plot_loss_50_epoch_skip = True
-validation_data_fraction = 0.25
+plot_loss_50_epoch_skip = False
+validation_data_fraction = 0.2
 
 data_sequence_size = 5
 batch_size = 5
@@ -33,12 +33,19 @@ seed = 1
 
 class Encoder(nn.Module):
     """
-
+    Encoder for the Variational Autoencoder: VAE,
+    and the Prediction Decoders: PredictionDecoder and PredictionDecoderVelocity.
     """
 
     def __init__(self, z_dim, fc1_size):
         """
+        Initializes internal Encoder state.
 
+        Args:
+            z_dim (int): number of dimensions in latent space of VAE.
+            fc1_size (int): size of the 1 dimensional input tensor, after
+                flattening and before going through the fully connected
+                transformation of Encoder.
         """
         super(Encoder, self).__init__()
 
@@ -57,7 +64,13 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         """
+        Defines the computation performed at every call.
 
+        Args:
+            x (Tensor): input tensor.
+
+        Returns:
+            tuple: (Tensor: gaussian means, Tensor: gaussian log variances).
         """
         # convolution
         x = self.conv1(x)
@@ -84,10 +97,18 @@ class Encoder(nn.Module):
 
 
 class Decoder(nn.Module):
+    """
+    Decoder for the Variational Autoencoder: VAE.
+    """
 
     def __init__(self, z_dim, output_size):
         """
+        Initializes internal Decoder state.
 
+        Args:
+            z_dim (int): number of dimensions in latent space of VAE.
+            output_size (int): size of the 1 dimensional output tensor, after going through the fully connected
+                transformation of Decoder and before reformatting(changing dimensions).
         """
         super(Decoder, self).__init__()
 
@@ -105,7 +126,13 @@ class Decoder(nn.Module):
 
     def forward(self, z_input):
         """
+        Defines the computation performed at every call.
 
+        Args:
+            z_input (Tensor): input tensor.
+
+        Returns:
+            Tensor: decoded input.
         """
         # latent space transformation
         x = self.fc_lat(z_input)
@@ -133,12 +160,15 @@ class Decoder(nn.Module):
 
 class VAE(nn.Module):
     """
-
+    Variational Autoencoder.
     """
 
     def __init__(self, z_dim):
         """
+        Initializes internal VAE state.
 
+        Args:
+            z_dim (int): number of dimensions in latent space of VAE.
         """
         super(VAE, self).__init__()
         self.encoder = Encoder(z_dim, convolution_channel_size_4 * data_sequence_size)
@@ -146,7 +176,13 @@ class VAE(nn.Module):
 
     def forward(self, x):
         """
+        Defines the computation performed at every call.
 
+        Args:
+            x (Tensor): input tensor.
+
+        Returns:
+            tuple: (Tensor: output, Tensor: gaussian means, Tensor: gaussian log variances).
         """
         # encode inputs into means and logs of variances
         z_mean, z_logvar = self.encoder(x)
@@ -161,16 +197,19 @@ class VAE(nn.Module):
 
         return output, z_mean, z_logvar
 
-    def reconstruct_data(self, sample):
-        """
-
-        """
-        return self.decoder(sample)
-
 
 def loss_fn(output, mean, logvar, target):
     """
+    Loss function for VAE.
 
+    Args:
+        output (Tensor): output of VAE after encoding and then decoding.
+        mean (Tensor): mean of gaussian distribution from latent space of VAE.
+        logvar (Tensor): log variance of gaussian distribution from latent space of VAE.
+        target (Tensor): input of VAE.
+
+    Returns:
+            tuple: (Tensor: total loss, Tensor: mean squared error).
     """
     # calculate the mean squared error per data point
     criterion = nn.MSELoss()
@@ -185,7 +224,16 @@ def loss_fn(output, mean, logvar, target):
 
 def data_loader(data, device, shuffle=True):
     """
+    Data loader for VAE.
 
+    Args:
+        data (list): list of data points(floats).
+        device (torch.device): torch device.
+        shuffle (bool, optional): set to ``True`` to have the data reshuffled
+            at every epoch (default: ``True``).
+
+    Returns:
+            DataLoader: data loader.
     """
     # format data and transfer to device
     tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
@@ -200,7 +248,10 @@ def data_loader(data, device, shuffle=True):
 
 def get_data():
     """
+    Reads all data types and returns the data type specified by the data_type parameter as a list.
 
+    Returns:
+            list: a list of the data type specified by the data_type parameter.
     """
     # get all data
     velocity_list, thrust_list, torque_list = read_data_lists()
@@ -226,7 +277,15 @@ def get_data():
 
 def setup(data):
     """
+    Sets up the seed, the VAE neural network, the optimizer, the torch device,
+    the splitting of the data into training and validation data sets,
+    the loading of the training and validation data into data loaders, and the trainer.
 
+    Args:
+        data (list): list of data points(floats).
+
+    Returns:
+            tuple: (torch.device: torch device, VAE: neural network, VAETrainer: trainer).
     """
     # set seed
     torch.manual_seed(seed)

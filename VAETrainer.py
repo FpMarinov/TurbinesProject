@@ -3,13 +3,22 @@ import torch
 
 class VAETrainer:
     """
-
+    Handles the training of the VAE neural network.
     """
 
     def __init__(self, model, num_epochs, train_loader, val_loader,
                  device, loss_criterion, optimizer):
         """
+        Initializes internal VAETrainer state.
 
+        Args:
+            model (VAE): VAE neural network.
+            num_epochs (int): number of epochs for training.
+            train_loader (DataLoader): data loader holding training data.
+            val_loader (DataLoader): data loader holding validation data.
+            device (torch.device): torch device.
+            loss_criterion (function): loss function.
+            optimizer (torch.optim.adam.Adam): Adam optimizer for VAE.
         """
         self.loss_criterion = loss_criterion
         self.model = model
@@ -22,7 +31,11 @@ class VAETrainer:
 
     def train_model(self):
         """
+        Trains the neural network self.model for self.num_epochs epochs with the data in self.train_loader.
 
+        Returns:
+            tuple: (list: average total training losses, list: average total validation losses,
+                list: average mse training losses, list: average mse validation losses).
         """
         self.model.to(self.device)
 
@@ -81,7 +94,10 @@ class VAETrainer:
 
     def eval_model(self):
         """
+        Evaluates the neural network self.model with the data in self.val_loader.
 
+        Returns:
+            tuple: (float: average total validation loss, float: average mse validation loss).
         """
         self.model.eval()
 
