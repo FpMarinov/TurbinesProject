@@ -12,14 +12,11 @@ convolution_kernel = 3
 
 class PredictionDecoderVelocity(nn.Module):
 
-    def __init__(self, sampling):
+    def __init__(self):
         super(PredictionDecoderVelocity, self).__init__()
 
         # latent space transformation
-        if sampling:
-            self.fc_lat = nn.Linear(2 * latent_dimensions, fully_connected_unit_size)
-        else:
-            self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
+        self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
 
         # fully connected transformation
         self.fc1 = nn.Linear(fully_connected_unit_size, convolution_channel_size_1 * data_sequence_size)

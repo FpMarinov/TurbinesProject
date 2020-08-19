@@ -10,12 +10,12 @@ from VAETrainer import VAETrainer
 from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
-data_type = "torque"
-mode = "train"
+data_type = "velocity"
+mode = "test"
 epochs = 100
 plot_loss_1_epoch_skip = True
 plot_loss_50_epoch_skip = True
-validation_data_fraction = 0.2
+validation_data_fraction = 0.25
 
 data_sequence_size = 5
 batch_size = 5

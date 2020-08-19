@@ -11,13 +11,12 @@ from ReaderWriter import read_data_lists, write_general_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, lr, Decoder, \
     convolution_channel_size_4, fully_connected_unit_size
 
-data_to_predict_type = "velocity"
+data_to_predict_type = "torque"
 mode = "train"
-epochs = 10
+epochs = 3
 plot_loss_1_epoch_skip = True
 plot_loss_50_epoch_skip = False
 validation_data_fraction = 0.2
-sampling = True
 
 weights_path_thrust = "./vae_net_thrust.pth"
 weights_path_torque = "./vae_net_torque.pth"
@@ -31,10 +30,7 @@ class PredictionDecoder(Decoder):
         super(PredictionDecoder, self).__init__(latent_dimensions, convolution_channel_size_4 * data_sequence_size)
 
         # latent space transformation
-        if sampling:
-            self.fc_lat = nn.Linear(2 * latent_dimensions, fully_connected_unit_size)
-        else:
-            self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
+        self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
 
 
 def get_data_and_weights():
@@ -83,7 +79,7 @@ def setup(data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, 
     vae1 = VAE(latent_dimensions)
     vae2 = VAE(latent_dimensions)
     if data_to_predict_type == "velocity":
-        decoder = PredictionDecoderVelocity(sampling)
+        decoder = PredictionDecoderVelocity()
     else:
         decoder = PredictionDecoder()
     optimizer = Adam(decoder.parameters(), lr=lr)
@@ -134,7 +130,7 @@ def setup(data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, 
         trainer = PredictionTrainer(encoder1, encoder2, decoder, epochs,
                                     training_loader_to_encode1, training_loader_to_encode2, training_loader_to_predict,
                                     validation_loader_to_encode1, validation_loader_to_encode2,
-                                    validation_loader_to_predict, device, optimizer, sampling)
+                                    validation_loader_to_predict, device, optimizer)
     else:
         trainer = None
 
@@ -177,6 +173,6 @@ if __name__ == "__main__":
     # visualise reconstruction
     prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_to_predict,
                                            data_to_predict_type, validation_loader_to_encode1,
-                                           validation_loader_to_encode2, sampling)
+                                           validation_loader_to_encode2)
 
     plt.show()
