@@ -1,8 +1,12 @@
+"""
+
+"""
+
 from torch import nn
 import torch.nn.functional as F
 from VAE import latent_dimensions, data_sequence_size
 
-
+# variables that should not be changed
 fully_connected_unit_size = 400
 convolution_channel_size_1 = 4
 convolution_channel_size_2 = 4

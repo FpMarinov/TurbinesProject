@@ -1,3 +1,7 @@
+"""
+
+"""
+
 import sys
 import torch
 import matplotlib.pyplot as plt
@@ -11,6 +15,7 @@ from ReaderWriter import read_data_lists, write_general_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, lr, Decoder, \
     convolution_channel_size_4, fully_connected_unit_size
 
+# variables that can be changed
 data_to_predict_type = "velocity"
 mode = "test"
 epochs = 3
@@ -18,6 +23,7 @@ plot_loss_1_epoch_skip = True
 plot_loss_50_epoch_skip = False
 validation_data_fraction = 0.2
 
+# variables that should not be changed
 weights_path_thrust = "./vae_net_thrust.pth"
 weights_path_torque = "./vae_net_torque.pth"
 weights_path_velocity = "./vae_net_velocity.pth"

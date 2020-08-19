@@ -1,3 +1,8 @@
+"""
+Contains functions for the reading of data and losses from files, and
+the writing of losses to files.
+"""
+
 import csv
 
 
@@ -94,8 +99,4 @@ def write_losses(average_total_training_losses, average_total_validation_losses,
     write_general_losses(average_total_training_losses, average_total_validation_losses, 'loss_record.csv')
     write_general_losses(average_mse_training_losses, average_mse_validation_losses, 'mse_loss_record.csv')
 
-
-if __name__ == "__main__":
-    velocity_list, thrust_list, torque_list = read_data_lists('Data.txt')
-    print('1D&3D: ', len(velocity_list))
 

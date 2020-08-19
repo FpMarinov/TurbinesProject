@@ -1,3 +1,37 @@
+"""
+Contains the variational autoencoder class, VAE, VAE's encoder class, Encoder, VAE's decoder class, Decoder,
+and helper functions.
+
+When the file is run, the behaviour is governed by the optional parameters:
+    - data_type (string): sets the data type, with which the program will work from among
+        "velocity", "thrust" and "torque".
+    - mode (string): decides the mode of action of the program;
+        If mode = "train", the variational autoencoder is trained with the chosen data type, saves the variational
+        autoencoder's weights to a file with a name given by the weights_path variable, saves the training and
+        validation losses to loss_record.csv, saves the training and validation mean squared errors to
+        mse_loss_record.csv and produces plots of the losses and mean squared errors.
+        If mode != "train"(or if mode = "train" and after the training is done), the variational autoencoder uses
+        pretrained weights from a file with a name given by the weights_path variable to reconstruct
+        the chosen data type and shows a scatter plot, having the original value on the x axis
+        and the reconstructed value on the y axis.
+    - epochs (int): decides the number of epochs the variational autoencoder trains for if it
+        is in train mode.
+    - plot_loss_1_epoch_skip (bool): decides whether to produce additional plots of the
+        training and validation losses and mean squared errors, skipping the first epoch.
+        It should only be used when the chosen number of epochs is 2 or more.
+    - plot_loss_50_epoch_skip (bool): decides whether to produce additional plots of the
+        training and validation losses and mean squared errors, skipping the first 50 epochs.
+        It should only be used when the chosen number of epochs is 50 or more.
+    - validation_data_fraction (float): the fraction of the data which is to be used for validation.
+
+Based on:
+
+File Name: main.py
+Developed by: Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
+Taken from: https://github.com/npitsillos/mnist-vae/blob/master/main.py
+Described at: https://npitsillos.github.io/posts/2020/05/mnistvae/
+"""
+
 from sklearn.model_selection import train_test_split
 import sys
 import torch
@@ -10,6 +44,7 @@ from VAETrainer import VAETrainer
 from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
+# variables that can be changed
 data_type = "velocity"
 mode = "train"
 epochs = 3
@@ -17,6 +52,7 @@ plot_loss_1_epoch_skip = True
 plot_loss_50_epoch_skip = False
 validation_data_fraction = 0.2
 
+# variables that should not be changed
 data_sequence_size = 5
 batch_size = 5
 convolution_channel_size_1 = 16

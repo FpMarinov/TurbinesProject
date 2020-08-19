@@ -1,3 +1,10 @@
+"""
+Contains functions for the production of plots, used to visualise
+data points, training losses, reconstructions and predictions.
+Also contains a function for the printing of the mean and
+standard deviation of a data set.
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -218,6 +225,3 @@ def print_signed_error_mean_and_std(originals, reconstructions):
     print("Signed Error Mean: ", signed_error_mean)
     print("Signed Error STD: ", signed_error_std)
 
-
-if __name__ == "__main__":
-    read_and_plot_data(True)

@@ -1,3 +1,14 @@
+"""
+Contains the VAETrainer class which handles the training of the variational autoencoder, VAE, and
+records the training and validation losses and mean squared errors.
+
+Based on:
+
+File Name: trainer.py
+Developed by Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
+Taken from: https://github.com/npitsillos/productivity_efficiency/blob/master/torch_trainer/trainer.py
+"""
+
 import torch
 
 
@@ -90,7 +101,7 @@ class VAETrainer:
             self.epoch += 1
 
         return average_total_training_losses, average_total_validation_losses, \
-            average_mse_training_losses, average_mse_validation_losses
+               average_mse_training_losses, average_mse_validation_losses
 
     def eval_model(self):
         """
