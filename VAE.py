@@ -2,7 +2,7 @@
 Contains the variational autoencoder class, VAE, VAE's encoder class, Encoder, VAE's decoder class, Decoder,
 and helper functions.
 
-When the file is run, the behaviour is governed by the optional parameters:
+When the file is run, the behaviour is governed by the changeable parameters:
     - data_type (string): sets the data type, with which the program will work from among
         "velocity", "thrust" and "torque".
     - mode (string): decides the mode of action of the program;
