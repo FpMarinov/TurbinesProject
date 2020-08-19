@@ -11,8 +11,14 @@ convolution_kernel = 3
 
 
 class PredictionDecoderVelocity(nn.Module):
+    """
+
+    """
 
     def __init__(self):
+        """
+
+        """
         super(PredictionDecoderVelocity, self).__init__()
 
         # latent space transformation
@@ -27,6 +33,9 @@ class PredictionDecoderVelocity(nn.Module):
         self.conv3 = nn.Conv1d(convolution_channel_size_3, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
+        """
+
+        """
         # latent space transformation
         x = self.fc_lat(z_input)
         x = F.relu(x)

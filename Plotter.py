@@ -6,6 +6,9 @@ from PredictionTrainer import encode_inputs
 
 
 def read_and_plot_data(normalization=False):
+    """
+
+    """
     # read data
     velocity_list, thrust_list, torque_list = read_data_lists()
 
@@ -25,6 +28,9 @@ def read_and_plot_data(normalization=False):
 
 
 def read_and_plot_losses(plot_50_epoch_skip=False):
+    """
+
+    """
     # read losses
     train_loss_list, validation_loss_list = read_losses()
 
@@ -34,6 +40,9 @@ def read_and_plot_losses(plot_50_epoch_skip=False):
 
 
 def data_list_plot(list, name, start_index=0, end_index=None, data_fraction=None):
+    """
+
+    """
     # set default end index(exclusive)
     if end_index is None:
         end_index = len(list)
@@ -68,6 +77,9 @@ def data_list_plot(list, name, start_index=0, end_index=None, data_fraction=None
 
 def losses_plot(average_training_losses, average_validation_losses, plot_1_epoch_skip=True,
                 plot_50_epoch_skip=False, title="Training Loss"):
+    """
+
+    """
     # get number of epochs
     epochs = len(average_training_losses)
 
@@ -111,6 +123,9 @@ def losses_plot(average_training_losses, average_validation_losses, plot_1_epoch
 
 
 def reconstruction_scatter_plot(vae, data, val_loader, data_type):
+    """
+
+    """
     # get lists of original data and reconstructions
     reconstructions = []
     originals = []
@@ -141,6 +156,9 @@ def reconstruction_scatter_plot(vae, data, val_loader, data_type):
 
 def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_to_predict, data_to_predict_type,
                                            val_loader_enc1, val_loader_enc2):
+    """
+
+    """
     # get lists of original data and reconstructions
     reconstructions = []
     originals = data_to_predict
@@ -163,6 +181,9 @@ def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, 
 
 
 def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type):
+    """
+
+    """
     # make scatter plot of originals and reconstructions
     plt.figure()
     plt.scatter(originals, reconstructions)
@@ -183,6 +204,9 @@ def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_ty
 
 
 def print_signed_error_mean_and_std(originals, reconstructions):
+    """
+
+    """
     originals_array = np.array(originals)
     reconstructions_array = np.array(reconstructions)
 

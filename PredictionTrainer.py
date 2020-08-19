@@ -3,10 +3,16 @@ from torch import nn
 
 
 class PredictionTrainer:
+    """
+
+    """
 
     def __init__(self, encoder1, encoder2, decoder, num_epochs, train_loader_enc1, train_loader_enc2, train_loader_pred,
                  val_loader_enc1, val_loader_enc2, val_loader_pred,
                  device, optimizer):
+        """
+
+        """
         self.loss_criterion = nn.MSELoss()
         self.encoder1 = encoder1
         self.encoder2 = encoder2
@@ -23,6 +29,9 @@ class PredictionTrainer:
         self.epoch = 0
 
     def train_model(self):
+        """
+
+        """
         self.encoder1.to(self.device)
         self.encoder2.to(self.device)
         self.decoder.to(self.device)
@@ -72,6 +81,9 @@ class PredictionTrainer:
         return average_training_losses, average_validation_losses
 
     def eval_model(self):
+        """
+
+        """
         self.decoder.eval()
 
         validation_losses_in_epoch = []
@@ -99,6 +111,9 @@ class PredictionTrainer:
 
 
 def encode_inputs(inputs1, inputs2, encoder1, encoder2, device):
+    """
+
+    """
     # get inputs
     inputs1 = inputs1[0]
     inputs2 = inputs2[0]

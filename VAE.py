@@ -32,8 +32,14 @@ seed = 1
 
 
 class Encoder(nn.Module):
+    """
+
+    """
 
     def __init__(self, z_dim, fc1_size):
+        """
+
+        """
         super(Encoder, self).__init__()
 
         # convolution
@@ -50,6 +56,9 @@ class Encoder(nn.Module):
         self.z_sigma = nn.Linear(fully_connected_unit_size, z_dim)
 
     def forward(self, x):
+        """
+
+        """
         # convolution
         x = self.conv1(x)
         x = F.relu(x)
@@ -77,6 +86,9 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
 
     def __init__(self, z_dim, output_size):
+        """
+
+        """
         super(Decoder, self).__init__()
 
         # latent space transformation
@@ -92,6 +104,9 @@ class Decoder(nn.Module):
         self.conv4 = nn.Conv1d(convolution_channel_size_1, 1, convolution_kernel, 1, 1)
 
     def forward(self, z_input):
+        """
+
+        """
         # latent space transformation
         x = self.fc_lat(z_input)
         x = F.relu(x)
@@ -117,13 +132,22 @@ class Decoder(nn.Module):
 
 
 class VAE(nn.Module):
+    """
+
+    """
 
     def __init__(self, z_dim):
+        """
+
+        """
         super(VAE, self).__init__()
         self.encoder = Encoder(z_dim, convolution_channel_size_4 * data_sequence_size)
         self.decoder = Decoder(z_dim, convolution_channel_size_4 * data_sequence_size)
 
     def forward(self, x):
+        """
+
+        """
         # encode inputs into means and logs of variances
         z_mean, z_logvar = self.encoder(x)
 
@@ -138,10 +162,16 @@ class VAE(nn.Module):
         return output, z_mean, z_logvar
 
     def reconstruct_data(self, sample):
+        """
+
+        """
         return self.decoder(sample)
 
 
 def loss_fn(output, mean, logvar, target):
+    """
+
+    """
     # calculate the mean squared error per data point
     criterion = nn.MSELoss()
     mse = criterion(output, target)
@@ -154,6 +184,9 @@ def loss_fn(output, mean, logvar, target):
 
 
 def data_loader(data, device, shuffle=True):
+    """
+
+    """
     # format data and transfer to device
     tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
     tensor = tensor.to(device)
@@ -166,6 +199,9 @@ def data_loader(data, device, shuffle=True):
 
 
 def get_data():
+    """
+
+    """
     # get all data
     velocity_list, thrust_list, torque_list = read_data_lists()
 
@@ -189,6 +225,9 @@ def get_data():
 
 
 def setup(data):
+    """
+
+    """
     # set seed
     torch.manual_seed(seed)
 

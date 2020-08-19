@@ -2,6 +2,9 @@ import csv
 
 
 def read_data_lists(file_name='Data.txt'):
+    """
+
+    """
     velocity_list = []
     thrust_list = []
     torque_list = []
@@ -30,6 +33,9 @@ def read_data_lists(file_name='Data.txt'):
 
 
 def read_losses(file_name='loss_record.csv'):
+    """
+
+    """
     train_loss_list = []
     validation_loss_list = []
 
@@ -63,6 +69,9 @@ def read_losses(file_name='loss_record.csv'):
 
 
 def write_general_losses(average_training_losses, average_validation_losses, file_name):
+    """
+
+    """
     # open/create loss_record.csv file
     with open(file_name, 'w') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter='\t')
@@ -79,6 +88,9 @@ def write_general_losses(average_training_losses, average_validation_losses, fil
 
 def write_losses(average_total_training_losses, average_total_validation_losses,
                  average_mse_training_losses, average_mse_validation_losses):
+    """
+
+    """
     write_general_losses(average_total_training_losses, average_total_validation_losses, 'loss_record.csv')
     write_general_losses(average_mse_training_losses, average_mse_validation_losses, 'mse_loss_record.csv')
 

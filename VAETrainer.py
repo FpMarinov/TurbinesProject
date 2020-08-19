@@ -2,9 +2,15 @@ import torch
 
 
 class VAETrainer:
+    """
+
+    """
 
     def __init__(self, model, num_epochs, train_loader, val_loader,
                  device, loss_criterion, optimizer):
+        """
+
+        """
         self.loss_criterion = loss_criterion
         self.model = model
         self.num_epochs = num_epochs
@@ -15,6 +21,9 @@ class VAETrainer:
         self.epoch = 0
 
     def train_model(self):
+        """
+
+        """
         self.model.to(self.device)
 
         average_total_training_losses = []
@@ -71,6 +80,9 @@ class VAETrainer:
             average_mse_training_losses, average_mse_validation_losses
 
     def eval_model(self):
+        """
+
+        """
         self.model.eval()
 
         total_validation_losses_in_epoch = []

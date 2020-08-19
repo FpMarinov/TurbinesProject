@@ -25,8 +25,14 @@ weights_path_decoder = "./vae_net_prediction_decoder_%s.pth" % data_to_predict_t
 
 
 class PredictionDecoder(Decoder):
+    """
+
+    """
 
     def __init__(self):
+        """
+
+        """
         super(PredictionDecoder, self).__init__(latent_dimensions, convolution_channel_size_4 * data_sequence_size)
 
         # latent space transformation
@@ -34,6 +40,9 @@ class PredictionDecoder(Decoder):
 
 
 def get_data_and_weights():
+    """
+
+    """
     # get all data
     velocity_list, thrust_list, torque_list = read_data_lists()
 
@@ -72,6 +81,9 @@ def get_data_and_weights():
 
 
 def setup(data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, weights_path_vae2):
+    """
+
+    """
     # set seed
     torch.manual_seed(seed)
 
