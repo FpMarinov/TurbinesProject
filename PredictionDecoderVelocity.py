@@ -1,5 +1,11 @@
 """
 
+Based on:
+
+File Name: main.py
+Developed by: Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
+Taken from: https://github.com/npitsillos/mnist-vae/blob/master/main.py
+Described at: https://npitsillos.github.io/posts/2020/05/mnistvae/
 """
 
 from torch import nn
