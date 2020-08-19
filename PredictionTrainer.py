@@ -1,10 +1,9 @@
 """
 
 Based on:
-
-File Name: trainer.py
-Developed by Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
-Taken from: https://github.com/npitsillos/productivity_efficiency/blob/master/torch_trainer/trainer.py
+    File Name: trainer.py
+    Developed by Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
+    Taken from: https://github.com/npitsillos/productivity_efficiency/blob/master/torch_trainer/trainer.py
 """
 
 import torch

@@ -25,11 +25,10 @@ When the file is run, the behaviour is governed by the changeable parameters:
     - validation_data_fraction (float): the fraction of the data which is to be used for validation.
 
 Based on:
-
-File Name: main.py
-Developed by: Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
-Taken from: https://github.com/npitsillos/mnist-vae/blob/master/main.py
-Described at: https://npitsillos.github.io/posts/2020/05/mnistvae/
+    File Name: main.py
+    Developed by: Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
+    Taken from: https://github.com/npitsillos/mnist-vae/blob/master/main.py
+    Described at: https://npitsillos.github.io/posts/2020/05/mnistvae/
 """
 
 from sklearn.model_selection import train_test_split
