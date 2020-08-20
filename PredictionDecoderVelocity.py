@@ -23,12 +23,13 @@ convolution_kernel = 3
 
 class PredictionDecoderVelocity(nn.Module):
     """
-
+    Decoder used for predicting velocity from the encoded means and log variances
+    of thrust and torque.
     """
 
     def __init__(self):
         """
-
+        Initializes internal PredictionDecoderVelocity state.
         """
         super(PredictionDecoderVelocity, self).__init__()
 
@@ -45,7 +46,13 @@ class PredictionDecoderVelocity(nn.Module):
 
     def forward(self, z_input):
         """
+        Defines the computation performed at every call.
 
+        Args:
+            z_input (Tensor): input tensor.
+
+        Returns:
+            Tensor: decoded input.
         """
         # latent space transformation
         x = self.fc_lat(z_input)
