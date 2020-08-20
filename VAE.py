@@ -264,8 +264,8 @@ def data_loader(data, device, shuffle=True):
     Args:
         data (list): list of data points(floats).
         device (torch.device): torch device.
-        shuffle (bool, optional): set to ``True`` to have the data reshuffled
-            at every epoch (default: ``True``).
+        shuffle (bool, optional): set to True to have the data reshuffled
+            at every epoch (default: True).
 
     Returns:
             DataLoader: data loader.
@@ -385,6 +385,6 @@ if __name__ == "__main__":
         vae.eval()
 
     # visualise reconstruction
-    reconstruction_scatter_plot(vae, data, validation_loader, data_type)
+    reconstruction_scatter_plot(vae, validation_loader, data_type)
 
     plt.show()

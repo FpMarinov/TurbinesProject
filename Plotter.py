@@ -14,7 +14,11 @@ from PredictionTrainer import encode_inputs
 
 def read_and_plot_data(normalization=False):
     """
+    Reads velocity, thrust and torque data from Data.txt and plots them.
 
+    Args:
+        normalization (bool, optional): brings all data to the same order of magnitude, O(10),
+        before plotting (default: False).
     """
     # read data
     velocity_list, thrust_list, torque_list = read_data_lists()
@@ -34,21 +38,16 @@ def read_and_plot_data(normalization=False):
     plt.show()
 
 
-def read_and_plot_losses(plot_50_epoch_skip=False):
-    """
-
-    """
-    # read losses
-    train_loss_list, validation_loss_list = read_losses()
-
-    # plot losses
-    losses_plot(train_loss_list, validation_loss_list, plot_50_epoch_skip)
-    plt.show()
-
-
 def data_list_plot(list, name, start_index=0, end_index=None, data_fraction=None):
     """
+    Plots data list or part of it.
 
+    Args:
+        list (list): data list.
+        name (string): name of data.
+        start_index (int, optional): index of data to start the plot from (default: 0).
+        end_index (int, optional): index of data to end the plot on (default: None).
+        data_fraction (float, optional): fraction of data to plot (default: None).
     """
     # set default end index(exclusive)
     if end_index is None:
@@ -85,7 +84,16 @@ def data_list_plot(list, name, start_index=0, end_index=None, data_fraction=None
 def losses_plot(average_training_losses, average_validation_losses, plot_1_epoch_skip=True,
                 plot_50_epoch_skip=False, title="Training Loss"):
     """
+    Plots losses.
 
+    Args:
+        average_training_losses (list): average training losses.
+        average_validation_losses (list): average validation losses.
+        plot_1_epoch_skip (bool, optional): if set to True makes an extra losses plot
+        skipping the first epoch(default: True).
+        plot_50_epoch_skip (bool, optional): if set to True makes an extra losses plot
+        skipping the first 50 epochs (default: False).
+        title (string, optional): title of plot (default: "Training Loss").
     """
     # get number of epochs
     epochs = len(average_training_losses)
@@ -129,9 +137,16 @@ def losses_plot(average_training_losses, average_validation_losses, plot_1_epoch
         plt.title(title)
 
 
-def reconstruction_scatter_plot(vae, data, val_loader, data_type):
+def reconstruction_scatter_plot(vae, val_loader, data_type):
     """
+    Passes the values in val_loader through VAE and
+    makes a scatter plot, having the original value
+    on the x axis and the reconstructed value on the y axis.
 
+    Args:
+        vae (VAE): variational autoencoder.
+        val_loader (DataLoader): data loader with data.
+        data_type (string): type of data.
     """
     # get lists of original data and reconstructions
     reconstructions = []
@@ -158,13 +173,27 @@ def reconstruction_scatter_plot(vae, data, val_loader, data_type):
         # add inputs/originals to list
         originals.extend(inputs)
 
-    reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type)
+    reconstruction_scatter_plot_helper(originals, reconstructions, data_type)
 
 
 def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, data_to_predict, data_to_predict_type,
                                            val_loader_enc1, val_loader_enc2):
     """
+    Passes the values in val_loader_enc1 through encoder1 and
+    those in val_loader_enc2 through encoder2. Takes the resulting
+    means and log variances and passes them through decoder to
+    make a prediction. Makes a scatter plot, having the original value
+    on the x axis and the predicted value on the y axis.
 
+    Args:
+        encoder1 (Encoder): encoder for the data in val_loader_enc1.
+        encoder2 (Encoder): encoder for the data in val_loader_enc2.
+        decoder (Decoder): decoder for the encoded data.
+        device (torch.device): torch device.
+        data_to_predict (list): list of data to be predicted.
+        data_to_predict_type (string): type of data to be predicted.
+        val_loader_enc1 (DataLoader): data loader with data for encoder1.
+        val_loader_enc2 (DataLoader): data loader with data for encoder2.
     """
     # get lists of original data and reconstructions
     reconstructions = []
@@ -184,20 +213,29 @@ def prediction_reconstruction_scatter_plot(encoder1, encoder2, decoder, device, 
         # add outputs/reconstructions to list
         reconstructions.extend(outputs)
 
-    reconstruction_scatter_plot_helper(originals, reconstructions, data_to_predict, data_to_predict_type)
+    reconstruction_scatter_plot_helper(originals, reconstructions, data_to_predict_type)
 
 
-def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_type):
+def reconstruction_scatter_plot_helper(originals, reconstructions, data_type):
     """
+    Helper function for reconstruction_scatter_plot and prediction_reconstruction_scatter_plot.
+    Makes a scatter plot, having the original value
+    on the x axis and the reconstructed/predicted value
+    on the y axis. Prints the signed error mean &
+    standard deviation after the plotting is finished.
 
+    Args:
+        originals (list): original data.
+        reconstructions (list): reconstructed data.
+        data_type (string): type of data.
     """
     # make scatter plot of originals and reconstructions
     plt.figure()
     plt.scatter(originals, reconstructions)
 
     # make plot of y = x
-    min_data = min(data)
-    max_data = max(data)
+    min_data = min(originals)
+    max_data = max(originals)
     straight_line_data = np.linspace(min_data, max_data)
     plt.plot(straight_line_data, straight_line_data, color="black")
 
@@ -212,7 +250,11 @@ def reconstruction_scatter_plot_helper(originals, reconstructions, data, data_ty
 
 def print_signed_error_mean_and_std(originals, reconstructions):
     """
+    Prints the signed error mean & standard deviation of the given data.
 
+    Args:
+        originals (list): original data.
+        reconstructions (list): reconstructed data.
     """
     originals_array = np.array(originals)
     reconstructions_array = np.array(reconstructions)
