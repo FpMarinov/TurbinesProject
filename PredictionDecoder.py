@@ -4,11 +4,11 @@ Contains the prediction decoder class, PredictionDecoder, and helper functions.
 When the file is run, the behaviour is governed by the changeable parameters:
     - data_to_predict_type (string): sets the data type to be predicted by the program from among
         "velocity", "thrust" and "torque".
-    - mode (string): decides the mode of action of the program;
-        If mode = "train", the prediction decoder is trained with the chosen data type,
+    - mode (string): decides the mode of action of the program:
+        - mode = "train", the prediction decoder is trained with the chosen data type,
         saves its weights to a file with a name given by the weights_path_decoder variable, saves the training and
         validation losses to loss_record.csv and produces plots of the losses.
-        If mode != "train"(or if mode = "train" and after the training is done), the prediction decoder uses
+        - mode != "train"(or if mode = "train" and after the training is done), the prediction decoder uses
         pretrained weights from a file with a name given by the weights_path_decoder variable to predict
         the chosen data type from the other two and shows a scatter plot, having the original value on the x axis
         and the reconstructed value on the y axis.
