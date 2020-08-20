@@ -1,6 +1,7 @@
 """
 Contains the PredictionTrainer class which handles the training of the prediction decoders,
 PredictionDecoder and PredictionDecoderVelocity, and records the training and validation losses.
+Also contains the encode_inputs helper function.
 
 Based on:
     File Name: trainer.py
@@ -14,14 +15,28 @@ from torch import nn
 
 class PredictionTrainer:
     """
-
+    Handles the training of the PredictionDecoder and PredictionDecoderVelocity neural networks.
     """
 
     def __init__(self, encoder1, encoder2, decoder, num_epochs, train_loader_enc1, train_loader_enc2, train_loader_pred,
                  val_loader_enc1, val_loader_enc2, val_loader_pred,
                  device, optimizer):
         """
+        Initializes internal PredictionTrainer state.
 
+        Args:
+            encoder1 (Encoder): .
+            encoder2 (Encoder): .
+            decoder (): .
+            num_epochs (int): number of epochs for training.
+            train_loader_enc1 (): data loader holding training data for encoder1.
+            train_loader_enc2 (): data loader holding training data for encoder2.
+            train_loader_pred (): data loader holding training data to be predicted by the decoder.
+            val_loader_enc1 (): data loader holding validation data for encoder1.
+            val_loader_enc2 (): data loader holding validation data for encoder2.
+            val_loader_pred (): data loader holding validation data to be predicted by the decoder.
+            device (torch.device): torch device.
+            optimizer (torch.optim.adam.Adam): Adam optimizer for VAE.
         """
         self.loss_criterion = nn.MSELoss()
         self.encoder1 = encoder1
@@ -40,7 +55,13 @@ class PredictionTrainer:
 
     def train_model(self):
         """
+        Trains the neural network self.decoder for self.num_epochs epochs with the data in
+        self.train_loader_enc1, self.train_loader_enc2 and self.train_loader_pred.
+        Evaluates the neural network self.decoder with the data in self.val_loader_enc1, self.val_loader_enc2
+        and self.val_loader_pred after each epoch.
 
+        Returns:
+            tuple: (list: average training losses, list: average validation losses).
         """
         self.encoder1.to(self.device)
         self.encoder2.to(self.device)
@@ -92,7 +113,11 @@ class PredictionTrainer:
 
     def eval_model(self):
         """
+        Evaluates the neural network self.decoder with the data in self.val_loader_enc1, self.val_loader_enc2
+        and self.val_loader_pred.
 
+        Returns:
+            float: average validation loss.
         """
         self.decoder.eval()
 
@@ -122,7 +147,19 @@ class PredictionTrainer:
 
 def encode_inputs(inputs1, inputs2, encoder1, encoder2, device):
     """
+    Encodes the inputs, inputs1 and inputs2, using encoder1 and encoder2, respectively.
+    Concatenates the resulting means and log variances into tensors, which are to be
+    decoded by PredictionDecoder or PredictionDecoderVelocity.
 
+    Args:
+        inputs1 (list): list containing a Tensor with the inputs for encoder1.
+        inputs2 (list): list containing a Tensor with the inputs for encoder2.
+        encoder1 (Encoder): encoder for inputs1
+        encoder2 (Encoder): encoder for inputs2
+        device (torch.device): torch device.
+        
+    Returns:
+        Tensor: decoded input.
     """
     # get inputs
     inputs1 = inputs1[0]

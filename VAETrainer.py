@@ -42,6 +42,7 @@ class VAETrainer:
     def train_model(self):
         """
         Trains the neural network self.model for self.num_epochs epochs with the data in self.train_loader.
+        Evaluates the neural network self.model with the data in self.val_loader after each epoch.
 
         Returns:
             tuple: (list: average total training losses, list: average total validation losses,

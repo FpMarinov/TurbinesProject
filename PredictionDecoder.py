@@ -44,7 +44,7 @@ from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, l
 
 # variables that can be changed
 data_to_predict_type = "velocity"
-mode = "test"
+mode = "train"
 epochs = 3
 plot_loss_1_epoch_skip = True
 plot_loss_50_epoch_skip = False
