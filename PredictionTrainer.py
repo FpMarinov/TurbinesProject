@@ -1,4 +1,6 @@
 """
+Contains the PredictionTrainer class which handles the training of the prediction decoders, PredictionDecoder and
+PredictionDecoderVelocity, and records the training and validation losses.
 
 Based on:
     File Name: trainer.py

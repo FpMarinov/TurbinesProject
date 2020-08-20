@@ -1,4 +1,6 @@
 """
+Contains the prediction decoder class for velocity, PredictionDecoderVelocity.
+It is used when PredictionDecoder.py is run with data_to_predict_type = "velocity".
 
 Based on:
     File Name: main.py

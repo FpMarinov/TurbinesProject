@@ -6,8 +6,8 @@ When the file is run, the behaviour is governed by the changeable parameters:
     - data_type (string): sets the data type, with which the program will work from among
         "velocity", "thrust" and "torque".
     - mode (string): decides the mode of action of the program;
-        If mode = "train", the variational autoencoder is trained with the chosen data type, saves the variational
-        autoencoder's weights to a file with a name given by the weights_path variable, saves the training and
+        If mode = "train", the variational autoencoder is trained with the chosen data type,
+        saves its weights to a file with a name given by the weights_path variable, saves the training and
         validation losses to loss_record.csv, saves the training and validation mean squared errors to
         mse_loss_record.csv and produces plots of the losses and mean squared errors.
         If mode != "train"(or if mode = "train" and after the training is done), the variational autoencoder uses
@@ -44,7 +44,7 @@ from ReaderWriter import read_data_lists, write_losses
 from Plotter import losses_plot, reconstruction_scatter_plot
 
 # variables that can be changed
-data_type = "velocity"
+data_type = "torque"
 mode = "train"
 epochs = 3
 plot_loss_1_epoch_skip = True
