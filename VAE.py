@@ -244,7 +244,7 @@ def loss_fn(output, mean, logvar, target):
         target (Tensor): input of VAE.
 
     Returns:
-            tuple: (Tensor: total loss, Tensor: mean squared error).
+        tuple: (Tensor: total loss, Tensor: mean squared error).
     """
     # calculate the mean squared error per data point
     criterion = nn.MSELoss()
@@ -268,7 +268,7 @@ def data_loader(data, device, shuffle=True):
             at every epoch (default: True).
 
     Returns:
-            DataLoader: data loader.
+        DataLoader: data loader.
     """
     # format data and transfer to device
     tensor = torch.FloatTensor(data).view(-1, 1, data_sequence_size)
@@ -286,7 +286,7 @@ def get_data():
     Reads all data types and returns the data type specified by the data_type parameter as a list.
 
     Returns:
-            list: a list of the data type specified by the data_type parameter.
+        list: a list of the data type specified by the data_type parameter.
     """
     # get all data
     velocity_list, thrust_list, torque_list = read_data_lists()
@@ -320,7 +320,7 @@ def setup(data):
         data (list): list of data points(floats).
 
     Returns:
-            tuple: (torch.device: torch device, VAE: neural network, VAETrainer: trainer).
+        tuple: (torch.device: torch device, VAE: neural network, VAETrainer: trainer).
     """
     # set seed
     torch.manual_seed(seed)

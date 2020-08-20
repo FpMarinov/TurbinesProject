@@ -15,7 +15,7 @@ def read_data_lists(file_name='Data.txt'):
         is to be read (default: "Data.txt").
 
     Returns:
-            tuple: (list: velocity data, list: thrust data, list: torque data).
+        tuple: (list: velocity data, list: thrust data, list: torque data).
     """
     velocity_list = []
     thrust_list = []
@@ -53,7 +53,7 @@ def read_losses(file_name='loss_record.csv'):
         are to be read (default: "loss_record.csv").
 
     Returns:
-            tuple: (list: training losses, list: validation losses).
+        tuple: (list: training losses, list: validation losses).
     """
     train_loss_list = []
     validation_loss_list = []

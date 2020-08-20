@@ -157,7 +157,7 @@ def encode_inputs(inputs1, inputs2, encoder1, encoder2, device):
         encoder1 (Encoder): encoder for inputs1
         encoder2 (Encoder): encoder for inputs2
         device (torch.device): torch device.
-        
+
     Returns:
         Tensor: decoded input.
     """

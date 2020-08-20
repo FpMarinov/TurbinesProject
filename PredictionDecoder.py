@@ -79,9 +79,9 @@ def get_data_and_weights():
     and returns them.
 
     Returns:
-            tuple: (list: data for encoder1, list: data for encoder2, list: data to be predicted,
-                string: weights path for vae containing encoder1,
-                string: weights path for vae containing encoder2).
+        tuple: (list: data for encoder1, list: data for encoder2, list: data to be predicted,
+            string: weights path for vae containing encoder1,
+            string: weights path for vae containing encoder2).
     """
     # get all data
     velocity_list, thrust_list, torque_list = read_data_lists()
@@ -130,8 +130,8 @@ def setup(data_to_encode1, data_to_encode2, data_to_predict, weights_path_vae1, 
         data (list): list of data points(floats).
 
     Returns:
-            tuple: (torch.device: torch device, Encoder: encoder1, Encoder: encoder2,
-                PredictionDecoder/PredictionDecoderVelocity: decoder, PredictionTrainer: trainer).
+        tuple: (torch.device: torch device, Encoder: encoder1, Encoder: encoder2,
+            PredictionDecoder/PredictionDecoderVelocity: decoder, PredictionTrainer: trainer).
     """
     # set seed
     torch.manual_seed(seed)
