@@ -4,7 +4,7 @@ and helper functions.
 
 When the file is run, the behaviour is governed by the changeable parameters:
     - data_type (string): sets the data type, with which the program will work from among
-        "velocity", "thrust" and "torque".
+        "velocity", "thrust" and "torque". The data is read from Data.txt.
     - mode (string): decides the mode of action of the program:
         - mode = "train", the variational autoencoder is trained with the chosen data type,
         saves its weights to a file with a name given by the weights_path variable, saves the training and
@@ -283,7 +283,7 @@ def data_loader(data, device, shuffle=True):
 
 def get_data():
     """
-    Reads all data types and returns the data type specified by the data_type parameter as a list.
+    Reads all data types from Data.txt and returns the data type specified by the data_type parameter as a list.
 
     Returns:
         list: a list of the data type specified by the data_type parameter.

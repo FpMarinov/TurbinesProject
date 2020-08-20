@@ -3,7 +3,7 @@ Contains the prediction decoder class, PredictionDecoder, and helper functions.
 
 When the file is run, the behaviour is governed by the changeable parameters:
     - data_to_predict_type (string): sets the data type to be predicted by the program from among
-        "velocity", "thrust" and "torque".
+        "velocity", "thrust" and "torque". The data is read from Data.txt.
     - mode (string): decides the mode of action of the program:
         - mode = "train", the prediction decoder is trained with the chosen data type,
         saves its weights to a file with a name given by the weights_path_decoder variable, saves the training and
@@ -75,8 +75,11 @@ class PredictionDecoder(Decoder):
 
 def get_data_and_weights():
     """
-    Reads all data types and the weights for encoder1 and encoder 2,
-    and returns them.
+    Reads all data types from Data.txt and
+    the weights for encoder1 and encoder 2
+    from among weights_path_thrust, weights_path_torque
+    and weights_path_velocity, and returns
+    the data and the encoder weights.
 
     Returns:
         tuple: (list: data for encoder1, list: data for encoder2, list: data to be predicted,
