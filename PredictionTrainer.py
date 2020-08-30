@@ -1,7 +1,7 @@
 """
 Contains the PredictionTrainer class which handles the training of the prediction decoders,
 PredictionDecoder and PredictionDecoderVelocity, and records the training and validation losses.
-Also contains the encode_inputs helper function.
+Also contains the encode_inputs helper function, which encodes inputs.
 
 Based on:
     File Name: trainer.py
