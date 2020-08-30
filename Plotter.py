@@ -8,7 +8,7 @@ standard deviation of a data set.
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from ReaderWriter import read_data_lists, read_losses
+from ReaderWriter import read_data_lists
 from PredictionTrainer import encode_inputs
 
 

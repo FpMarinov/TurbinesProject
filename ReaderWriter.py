@@ -1,6 +1,7 @@
 """
-Contains functions for the reading of velocity, thrust and torque data and losses from files, and
-the writing of losses to files.
+Contains functions for the reading of velocity, thrust and torque data from Data.txt and
+losses from loss_record.csv and mse_loss_record.csv, and the writing of losses to
+loss_record.csv and mse_loss_record.csv.
 """
 
 import csv

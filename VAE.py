@@ -48,8 +48,8 @@ from Plotter import losses_plot, reconstruction_scatter_plot
 # variables that can be changed
 data_type = "torque"
 mode = "train"
-epochs = 3
-plot_loss_1_epoch_skip = True
+epochs = 1
+plot_loss_1_epoch_skip = False
 plot_loss_50_epoch_skip = False
 validation_data_fraction = 0.2
 
