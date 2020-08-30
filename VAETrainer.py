@@ -4,7 +4,7 @@ records the training and validation losses and mean squared errors.
 
 Based on:
     File Name: trainer.py
-    Developed by Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
+    Developed by Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems, University of Glasgow
     Taken from: https://github.com/npitsillos/productivity_efficiency/blob/master/torch_trainer/trainer.py
 """
 

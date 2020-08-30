@@ -1,6 +1,7 @@
 """
 Contains the variational autoencoder class, VAE, VAE's encoder class, Encoder, VAE's decoder class, Decoder,
-and helper functions.
+and helper functions. The VAE class is responsible for the encoding data into a gaussian distribution,
+sampling the distribution and then decoding the data.
 
 When the file is run, the behaviour is governed by the changeable parameters:
     - data_type (string): sets the data type, with which the program will work from among
@@ -26,7 +27,7 @@ When the file is run, the behaviour is governed by the changeable parameters:
 
 Based on:
     File Name: main.py
-    Developed by: Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
+    Developed by: Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems, University of Glasgow
     Taken from: https://github.com/npitsillos/mnist-vae/blob/master/main.py
     Described at: https://npitsillos.github.io/posts/2020/05/mnistvae/
 """

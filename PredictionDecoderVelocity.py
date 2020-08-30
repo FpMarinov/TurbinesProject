@@ -4,7 +4,7 @@ It is used when PredictionDecoder.py is run with data_to_predict_type = "velocit
 
 Based on:
     File Name: main.py
-    Developed by: Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems @ UofG
+    Developed by: Nikolas Pitsillos, PhD Candidate in Computer Vision and Autonomous Systems, University of Glasgow
     Taken from: https://github.com/npitsillos/mnist-vae/blob/master/main.py
     Described at: https://npitsillos.github.io/posts/2020/05/mnistvae/
 """
