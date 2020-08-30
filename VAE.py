@@ -7,11 +7,12 @@ When the file is run, the behaviour is governed by the changeable parameters:
     - data_type (string): sets the data type, with which the program will work from among
         "velocity", "thrust" and "torque". The data is read from Data.txt.
     - mode (string): decides the mode of action of the program:
-        - mode = "train", the variational autoencoder is trained with the chosen data type,
-        saves its weights to a file with a name given by the weights_path variable, saves the training and
+        (a) mode = "train", the variational autoencoder is trained with the chosen data type,
+        saves its weights to a file with a name given by the weights_path variable(vae_net_velocity.pth,
+        vae_net_torque.pth or vae_net_thrust.pth), saves the training and
         validation losses to loss_record.csv, saves the training and validation mean squared errors to
         mse_loss_record.csv and produces plots of the losses and mean squared errors.
-        - mode != "train"(or if mode = "train" and after the training is done), the variational autoencoder uses
+        (b) mode != "train"(or if mode = "train" and after the training is done), the variational autoencoder uses
         pretrained weights from a file with a name given by the weights_path variable to reconstruct
         the chosen data type and shows a scatter plot, having the original value on the x axis
         and the reconstructed value on the y axis.
