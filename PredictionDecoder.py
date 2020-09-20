@@ -44,7 +44,7 @@ from PredictionDecoderVelocity import PredictionDecoderVelocity
 from PredictionTrainer import PredictionTrainer
 from ReaderWriter import read_data_lists, write_general_losses
 from VAE import data_loader, VAE, latent_dimensions, data_sequence_size, seed, lr, Decoder, \
-    convolution_channel_size_4, fully_connected_unit_size
+    convolution_channel_size_4, fully_connected_layer_size
 
 # variables that can be changed
 data_to_predict_type = "velocity"
@@ -74,7 +74,7 @@ class PredictionDecoder(Decoder):
         super(PredictionDecoder, self).__init__(latent_dimensions, convolution_channel_size_4 * data_sequence_size)
 
         # latent space transformation
-        self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_unit_size)
+        self.fc_lat = nn.Linear(4 * latent_dimensions, fully_connected_layer_size)
 
 
 def get_data_and_weights():

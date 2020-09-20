@@ -60,7 +60,7 @@ convolution_channel_size_1 = 16
 convolution_channel_size_2 = 8
 convolution_channel_size_3 = 16
 convolution_channel_size_4 = 4
-fully_connected_unit_size = 400
+fully_connected_layer_size = 400
 latent_dimensions = 1
 convolution_kernel = 3
 weights_path = "./vae_net_%s.pth" % data_type
@@ -93,11 +93,11 @@ class Encoder(nn.Module):
         self.conv4 = nn.Conv1d(convolution_channel_size_3, convolution_channel_size_4, convolution_kernel, 1, 1)
 
         # fully connected transformation
-        self.fc1 = nn.Linear(fc1_size, fully_connected_unit_size)
+        self.fc1 = nn.Linear(fc1_size, fully_connected_layer_size)
 
         # latent space transformation
-        self.z_mu = nn.Linear(fully_connected_unit_size, z_dim)
-        self.z_sigma = nn.Linear(fully_connected_unit_size, z_dim)
+        self.z_mu = nn.Linear(fully_connected_layer_size, z_dim)
+        self.z_sigma = nn.Linear(fully_connected_layer_size, z_dim)
 
     def forward(self, x):
         """
@@ -150,10 +150,10 @@ class Decoder(nn.Module):
         super(Decoder, self).__init__()
 
         # latent space transformation
-        self.fc_lat = nn.Linear(z_dim, fully_connected_unit_size)
+        self.fc_lat = nn.Linear(z_dim, fully_connected_layer_size)
 
         # fully connected transformation
-        self.fc1 = nn.Linear(fully_connected_unit_size, output_size)
+        self.fc1 = nn.Linear(fully_connected_layer_size, output_size)
 
         # convolution
         self.conv1 = nn.Conv1d(convolution_channel_size_4, convolution_channel_size_3, convolution_kernel, 1, 1)
